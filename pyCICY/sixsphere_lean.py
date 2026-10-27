@@ -58,14 +58,17 @@ only to be proved; whether each is also choice-free is reported per fact, so
 the stronger grade stays visible.
 """
 
+import itertools
+
 from sympy import Matrix, symbols, expand, eye, zeros
 
 from . import sixsphere as S
 from .theories.nariai_lean import (Fact, check_source, lean_executable,
                                    NoToolchain)
 
-__all__ = ["FACTS", "CERT_FACTS", "lean_source", "check_python", "check_lean",
-           "status", "status_certificates", "lean_mat", "lean_vec",
+__all__ = ["FACTS", "CERT_FACTS", "JACOBI_FACTS", "lean_source",
+           "check_python", "check_lean", "status", "status_certificates",
+           "status_jacobi", "lean_mat", "lean_vec",
            "STANDARD_AXIOMS"]
 
 NAMESPACE = "SixSphere"
@@ -768,6 +771,248 @@ theorem h1_presentation_trivial :
 
 
 CERT_FACTS = _certificate_facts()
+
+
+# ---------------------------------------------------------------------------
+# Parts IX and XI: the character chi and the theta exponents
+# ---------------------------------------------------------------------------
+#
+# Theorem XI rests on Part IX's arithmetic -- <T1, T2> = ker chi, chi onto
+# Z/12 -- and on Part XI's exponent bookkeeping. Both are finite or
+# polynomial, so both can be machine-checked; what cannot is kept out and
+# named: the presentation <S, T | S^4, (ST)^3 = S^2> of SL(2, Z) (quoted), the
+# classical theta_1 and eta laws (quoted, Mumford), and step (v) of
+# :func:`sixsphere_gauge.holonomy_index`, a two-line group-theory argument.
+#
+# Two facts are *stronger* than their Python halves: the homomorphism identity
+# for f is proved for all integer c, c' (Python checks the sixteen residues mod
+# 2), and the generation of {f = 0} is proved for all (x, y, s) (Python checks
+# a box). Kept apart from FACTS and CERT_FACTS, as JACOBI_FACTS, so neither of
+# those lists nor what is claimed about them changes.
+
+JACOBI_DEFS = r"""/-- The integral Jacobi group in the basis (gamma, u, w, delta): L(M) the
+Levi lift, h(c, s) the Heisenberg element, q the odd refinement of omega mod 2,
+f(h(c, s)) = s - 6 q(c). -/
+def levi (M : Mat) : Mat :=
+  [[1, 0, 0, 0], [0, entry M 0 0, entry M 0 1, 0],
+   [0, entry M 1 0, entry M 1 1, 0], [0, 0, 0, 1]]
+def heis (c1 c2 s : Int) : Mat :=
+  [[1, -6*c2, 6*c1, s], [0, 1, 0, c1], [0, 0, 1, c2], [0, 0, 0, 1]]
+def q (x y : Int) : Int := if x %% 2 = 0 ∧ y %% 2 = 0 then 0 else 1
+def f (c1 c2 s : Int) : Int := (s - 6 * q c1 c2) %% 12
+def Ssl : Mat := %(S)s
+def Tsl : Mat := %(T)s
+def M1 : Mat := %(M1)s
+def M2 : Mat := %(M2)s
+
+set_option linter.unusedSimpArgs false
+"""
+
+
+def _word_lean(word):
+    """A word in a = T1, A = T1^2, b = T2, B = T2^3, as a Lean product."""
+    g = {"a": "T1", "A": "(mpow T1 2)", "b": "T2", "B": "(mpow T2 3)"}
+    out = g[word[0]]
+    for x in word[1:]:
+        out = "(mul %s %s)" % (out, g[x])
+    return out
+
+
+def _poly_lean(e):
+    """A sympy polynomial in tau, mu, beta as a Lean Int expression in t, m, b."""
+    from sympy import Poly
+    Poly(e, S.TAU, S.MU, S.BETA)                 # raises if not a polynomial
+    txt = str(e).replace("**", "^")
+    for a, b in (("tau", "t"), ("beta", "b"), ("mu", "m")):
+        txt = txt.replace(a, b)
+    return "(" + txt + ")"
+
+
+def _theta_exponents():
+    """Per generator g of Part XI: P = 12 tau (classical exponent), Q = tau
+    (beta' - beta), k = 12 c (c the constant exponent) and chi(g). The theorem
+    is P + Q = k tau and k = chi mod 12."""
+    from sympy import cancel, expand, nsimplify
+    from . import sixsphere_theta as T
+    out = []
+    for g in ("L(S)", "L(T)", "h(1,0,0)", "h(0,1,0)", "z"):
+        law = S.laws_from_lattice(T.GENERATORS[g])["law"]
+        P = expand(12 * S.TAU * T._classical_exponent(g, S.TAU, S.MU))
+        Q = cancel(S.TAU * (law[2] - S.BETA))
+        if S.BETA in Q.free_symbols:             # the shift is beta-free
+            raise ValueError("beta' - beta depends on beta for %s" % g)
+        k = nsimplify(cancel((P + Q) / S.TAU))
+        out.append((g, P, Q, int(k), T.chi(T.GENERATORS[g])))
+    return out
+
+
+def _theta_python():
+    from . import sixsphere_theta as T
+    pr = T.proof_by_generators()
+    return (all(v["ok"] for v in pr.values())
+            and all(12 * pr[g]["exponent"] == k
+                    for g, _, _, k, _ in _theta_exponents()))
+
+
+def _jacobi_facts():
+    from sympy import symbols
+    from . import sixsphere_gauge as G
+    (M1s, (a1, b1, s1)), (M2s, (a2, b2, s2)) = G.split(S.T1), G.split(S.T2)
+    defs = JACOBI_DEFS % {"S": lean_mat(G._ST), "T": lean_mat(G._TT),
+                          "M1": lean_mat(G._M1), "M2": lean_mat(G._M2)}
+
+    def law_py():
+        c1, c2, s, d1, d2, t = symbols("c1 c2 s d1 d2 t")
+        return (G.heis(c1, c2, s) * G.heis(d1, d2, t)
+                - G.heis(c1 + d1, c2 + d2, s + t + 6 * (c1 * d2 - c2 * d1))
+                ).expand() == zeros(4)
+
+    words = []
+    for key, w in G.WORDS.items():
+        c = [int(x) for x in key[2:-1].split(",")]
+        words.append("%s = heis (%d) (%d) (%d)" % (_word_lean(w), *c))
+    ex = _theta_exponents()
+    theta_lines = " ∧\n    ".join(
+        "%s + %s = (%d) * t" % (_poly_lean(P), _poly_lean(Q), k)
+        for _, P, Q, k, _ in ex)
+    theta_mods = " ∧ ".join("((%d) - %d) %% 12 = 0" % (k, c)
+                            for _, _, _, k, c in ex)
+    return [
+        Fact("heis_group_law",
+             defs + r"""
+/-- h(c, s) h(c', s') = h(c + c', s + s' + 6 omega(c, c')), for all integers.
+Everything below that is universally quantified rests on this. -/
+theorem heis_group_law (c1 c2 s d1 d2 t : Int) :
+    mul (heis c1 c2 s) (heis d1 d2 t) =
+      heis (c1 + d1) (c2 + d2) (s + t + 6 * (c1 * d2 - c2 * d1)) := by
+  simp [mul, heis, col, width, dot, List.range, List.range.loop,
+        List.zipWith, List.foldl]
+  grind""",
+             law_py,
+             "Part IX: the Heisenberg multiplication law"),
+        Fact("f_homomorphism",
+             r"""/-- f is a homomorphism: 6 [omega(c, c') - q(c + c') + q(c) + q(c')] = 0
+mod 12, for all integer c, c' (the Python half checks the sixteen residues). -/
+theorem f_homomorphism (c1 c2 d1 d2 : Int) :
+    (6 * ((c1 * d2 - c2 * d1) - q (c1 + d1) (c2 + d2) + q c1 c2 + q d1 d2))
+      % 12 = 0 := by
+  have h1 : c1 % 2 = 0 ∨ c1 % 2 = 1 := by omega
+  have h2 : c2 % 2 = 0 ∨ c2 % 2 = 1 := by omega
+  have h3 : d1 % 2 = 0 ∨ d1 % 2 = 1 := by omega
+  have h4 : d2 % 2 = 0 ∨ d2 % 2 = 1 := by omega
+  have e1 : (c1 * d2) % 2 = ((c1 % 2) * (d2 % 2)) % 2 := Int.mul_emod _ _ _
+  have e2 : (c2 * d1) % 2 = ((c2 % 2) * (d1 % 2)) % 2 := Int.mul_emod _ _ _
+  unfold q
+  rcases h1 with h1 | h1 <;> rcases h2 with h2 | h2 <;>
+    rcases h3 with h3 | h3 <;> rcases h4 with h4 | h4 <;>
+    simp only [h1, h2, h3, h4] at e1 e2 <;> split <;> split <;> split <;> omega""",
+             lambda: G.f_is_homomorphism()["ok"],
+             "Part IX: f(h h') = f(h) + f(h')"),
+        Fact("q_gl2f2_invariant",
+             r"""/-- q(Mc) = q(c) for every M in GL(2, F2): f is SL(2, Z)-invariant. -/
+theorem q_gl2f2_invariant :
+    ∀ m ∈ [[0,1,1,0],[0,1,1,1],[1,0,0,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]],
+    ∀ x ∈ [0, 1], ∀ y ∈ [0, 1],
+      q (m.getD 0 0 * x + m.getD 1 0 * y) (m.getD 2 0 * x + m.getD 3 0 * y)
+        = q x y := by decide""",
+             lambda: (G.f_is_invariant()["q is GL(2, F2)-invariant"]
+                      and sorted(m for m in itertools.product((0, 1), repeat=4)
+                                 if (m[0] * m[3] - m[1] * m[2]) % 2)
+                      == [(0, 1, 1, 0), (0, 1, 1, 1), (1, 0, 0, 1),
+                          (1, 0, 1, 1), (1, 1, 0, 1), (1, 1, 1, 0)]),
+             "Part IX: GL(2, F2) has six elements; the conjugation "
+             "L(M) h(c,s) L(M)^-1 = h(Mc, s) is checked symbolically in Python"),
+        Fact("alpha_relations",
+             r"""/-- The matrices S, T satisfy S^4 = 1 and (S T)^3 = S^2; the values
+alpha(S) = 9, alpha(T) = 1 satisfy them in Z/12; M2 = S and M1 S = T, so
+alpha(M1) = 1 - 9 = 4 and alpha(M2) = 9. (That S, T generate SL(2, Z) with
+exactly these relations is quoted, not proved.) -/
+theorem alpha_relations :
+    mpow Ssl 4 = ident 2 ∧ mpow (mul Ssl Tsl) 3 = mpow Ssl 2 ∧
+    (4 * 9) % 12 = 0 ∧ (3 * (9 + 1) - 2 * 9) % 12 = 0 ∧
+    M2 = Ssl ∧ mul M1 Ssl = Tsl ∧ ((1 : Int) - 9) % 12 = 4 := by decide""",
+             lambda: (all(G.alpha()["relations"].values())
+                      and all(G.alpha()["words"].values())
+                      and G.alpha()["values"] == {"M1": 4, "M2": 9, "T": 1}),
+             "Part IX: the abelianisation SL(2, Z) -> Z/12"),
+        Fact("chi_values",
+             r"""/-- T1 = L(M1) h(%(a1)d, %(b1)d, %(s1)d) and T2 = L(M2) h(%(a2)d, %(b2)d, %(s2)d);
+chi(T1) = 4 + f = 0, chi(T2) = 9 + f = 0, chi(z) = f(h(0, 0, 1)) = 1. -/
+theorem chi_values :
+    T1 = mul (levi M1) (heis (%(a1)d) (%(b1)d) (%(s1)d)) ∧
+    T2 = mul (levi M2) (heis (%(a2)d) (%(b2)d) (%(s2)d)) ∧
+    (4 + f (%(a1)d) (%(b1)d) (%(s1)d)) %% 12 = 0 ∧
+    (9 + f (%(a2)d) (%(b2)d) (%(s2)d)) %% 12 = 0 ∧
+    f 0 0 1 = 1 := by decide""" % {"a1": a1, "b1": b1, "s1": s1,
+                                   "a2": a2, "b2": b2, "s2": s2},
+             lambda: (G.chi(S.T1) == 0 and G.chi(S.T2) == 0
+                      and G.chi(G.heis(0, 0, 1)) == 1
+                      and M1s == G._M1 and M2s == G._M2),
+             "Part IX, holonomy_index (i) and chi onto Z/12"),
+        Fact("holonomy_words",
+             "/-- The words of sixsphere_gauge.WORDS in a = T1, A = T1^2, b = T2:\n"
+             "h(1,0,6), h(0,1,6), h(-1,0,6) lie in <T1, T2>, and\n"
+             "h(1,0,6) h(-1,0,6) = z^12. -/\n"
+             "theorem holonomy_words :\n    "
+             + " ∧\n    ".join(words) + " ∧\n"
+             "    mul (heis 1 0 6) (heis (-1) 0 6) = heis 0 0 12 := by decide",
+             lambda: G.holonomy_index()["words_ok"]
+             and G.holonomy_index()["z^12 in H"],
+             "Part IX, holonomy_index (iii)"),
+        Fact("f_zero_generated",
+             r"""/-- {f = 0} is generated by a = h(1,0,6), b = h(0,1,6), z^12 = h(0,0,12):
+their powers are explicit, and every h(x, y, s) with f = 0 is
+h(x, 0, 6x) h(0, y, 6y) z^(12 k). For all integers (the Python half checks a
+box). With holonomy_words this is holonomy_index (iv); step (v) is the
+two-line argument in its docstring. -/
+theorem f_zero_generated :
+    (∀ n : Nat, mpow (heis 1 0 6) n = heis n 0 (6 * n)) ∧
+    (∀ n : Nat, mpow (heis (-1) 0 (-6)) n = heis (-n) 0 (-6 * n)) ∧
+    (∀ n : Nat, mpow (heis 0 1 6) n = heis 0 n (6 * n)) ∧
+    (∀ n : Nat, mpow (heis 0 (-1) (-6)) n = heis 0 (-n) (-6 * n)) ∧
+    (∀ n : Nat, mpow (heis 0 0 12) n = heis 0 0 (12 * n)) ∧
+    (∀ n : Nat, mpow (heis 0 0 (-12)) n = heis 0 0 (-12 * n)) ∧
+    (∀ x y s : Int, f x y s = 0 →
+      heis x y s = mul (mul (heis x 0 (6 * x)) (heis 0 y (6 * y)))
+                       (heis 0 0 (12 * ((s - 6 * (x + y + x * y)) / 12)))) := by
+  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
+  all_goals try (intro n; induction n with
+    | zero => decide
+    | succ n ih => simp only [mpow, ih, heis_group_law]; congr 1 <;> grind)
+  intro x y s h
+  rw [heis_group_law, heis_group_law]
+  unfold f q at h
+  have h1 : x % 2 = 0 ∨ x % 2 = 1 := by omega
+  have h2 : y % 2 = 0 ∨ y % 2 = 1 := by omega
+  have e : (x * y) % 2 = ((x % 2) * (y % 2)) % 2 := Int.mul_emod _ _ _
+  have key : (s - 6 * (x + y + x * y)) % 12 = 0 := by
+    rcases h1 with h1 | h1 <;> rcases h2 with h2 | h2 <;>
+      simp only [h1, h2] at e <;> split at h <;> omega
+  congr 1 <;> grind""",
+             lambda: G.holonomy_index()["f=0 generated (box)"],
+             "Part IX, holonomy_index (iv), for all (x, y, s)"),
+        Fact("theta_generator_exponents",
+             "/-- Part XI. Per generator L(S), L(T), h(1,0,0), h(0,1,0), z:\n"
+             "12 tau (classical exponent) + tau (beta' - beta) = 12 c tau, a\n"
+             "constant c, and 12 c = chi(g) mod 12. The classical theta_1 and eta\n"
+             "laws behind the first term are quoted (Mumford); beta' is the\n"
+             "lattice law, generated from sixsphere.laws_from_lattice, and\n"
+             "beta' - beta is free of beta. -/\n"
+             "theorem theta_generator_exponents (t m : Int) :\n    "
+             + theta_lines + " ∧\n    " + theta_mods + " := by\n"
+             "  refine ⟨?_, ?_, ?_, ?_, ?_, ?_⟩ <;> grind",
+             _theta_python,
+             "Part XI, proof_by_generators; the theta laws stay quoted"),
+    ]
+
+
+JACOBI_FACTS = _jacobi_facts()
+
+
+def status_jacobi(lean_path=None):
+    """:func:`status` for :data:`JACOBI_FACTS`: Part IX's ker chi arithmetic
+    and Part XI's generator exponents, emitted as a file of their own."""
+    return status(lean_path=lean_path, facts=JACOBI_FACTS)
 
 
 # ---------------------------------------------------------------------------

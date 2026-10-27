@@ -2,7 +2,7 @@
 
 ## Exact methods for Alpöge's complex structure on the six-sphere
 
-### A Python implementation of the finite layer of the construction, with every number reached twice where it can be, thirty-four facts machine-checked, and a ledger of what is quoted
+### A Python implementation of the finite layer of the construction, with every number reached twice where it can be, sixty-seven facts machine-checked, and a ledger of what is quoted
 
 ---
 
@@ -55,7 +55,8 @@ stating on their own:
 5. **Thirty-four facts machine-checked**, Mathlib-free, several universally
    quantified — among them that *every* cone of the infinite cusp fan is
    unimodular — and the controls that guard the checker found a real hole in
-   it.
+   it. Twenty-five Smith/saturation certificates and eight facts on the
+   critical path of Theorem XI bring the kernel-checked total to sixty-seven.
 6. **The paper's data is forced.** Among the lattice data of its shape, only
    the (3, 4, ∞) triangle group can give a homology sphere, and within it the
    paper's matrices are, up to conjugacy, the only data that reaches
@@ -454,6 +455,36 @@ test run with a toolchain — a false fact, a `sorry`, a `native_decide`, a
 declared axiom, and `T₁` with `−5` for `−6` — and all five are refused. Without
 a toolchain the file is still emitted, the Python half still runs, and nothing
 is claimed as checked.
+
+**Theorem XI's finite steps (`JACOBI_FACTS`, test [22]).** Eight more facts
+take the derived part of Theorem XI's critical path to the kernel, in a
+separate group so the counts above stay as they are:
+
+| fact | statement |
+| --- | --- |
+| `heis_group_law` | the 4×4 matrices `h(c, s)` multiply by `h(c+c', s+s'+6ω(c,c'))`, symbolically |
+| `f_homomorphism` | `f(h(c,s)) = s − 6q(c) mod 12` is additive, for *all* integer `c, c', s, s'` |
+| `q_gl2f2_invariant` | `q` is invariant under the six elements of `GL(2, F₂)` |
+| `alpha_relations` | `α(S) = 9`, `α(T) = 1` respect `S⁴ = 1` and `(ST)³ = S²` in `Z/12` |
+| `chi_values` | `χ(T₁) = χ(T₂) = 0`, and `χ` takes all twelve values |
+| `holonomy_words` | the words of `sixsphere_gauge.WORDS` multiply out to the claimed elements |
+| `f_zero_generated` | every `h(x, y, s)` with `f = 0` is a product of the generators' powers, for *all* `(x, y, s)` |
+| `theta_generator_exponents` | per generator, the classical exponent plus the `β` shift is `χ(g)/12`, as polynomial identities in `τ, μ` |
+
+All eight are kernel-checked in about four seconds on the allow-listed
+axioms. Four of them (`q_gl2f2_invariant`, `alpha_relations`, `chi_values`,
+`holonomy_words`) are choice-free; the other four are `omega`/`grind` proofs.
+Two of them are stronger than their Python halves: `f_homomorphism` and
+`f_zero_generated` hold for every integer input, where Python checks a box.
+The theta polynomials are generated from the lattice laws in `sixsphere_theta`,
+so the proof cannot drift onto other exponents. Five tamper controls run
+against the kernel and are refused: `α(S) = 8`, `q` zero on odd vectors, a
+cocycle `7ω` in place of `6ω`, a word with its last letter dropped, and
+`χ(L(S)) = 8` in the theta exponents. Lean does not see the theta
+transformation laws themselves (Mumford), that `S` and `T` generate
+`SL(2, Z)`, or step (v) of `holonomy_index`, the index count from (i)-(iv);
+the ledger marks the first two as quoted and the rows as `L` for their
+derived part only.
 
 ---
 
@@ -1531,7 +1562,7 @@ block is stale.
 | IX | `delta^ = Q0(gamma, .)` | derived |  |
 | IX | `commutant <I, gamma (x) delta^>` | derived |  |
 | IX | `automorphisms of (Q0, gamma) = Jacobi group, r forced` | derived |  |
-| IX | `<T1, T2> = ker chi, index 12` | derived, quoted | quoted: S and T generate SL(2, Z) (Serre, A Course in Arithmetic, VII.1); **Theorem XI** |
+| IX | `<T1, T2> = ker chi, index 12` | derived, quoted, Lean | quoted: S and T generate SL(2, Z) (Serre, A Course in Arithmetic, VII.1); Lean: `heis_group_law`, `f_homomorphism`, `q_gl2f2_invariant`, `alpha_relations`, `chi_values`, `holonomy_words`, `f_zero_generated`; **Theorem XI** |
 | IX | `control: Levi lifts have chi = (4, 9), cusp rank 1` | derived, control |  |
 | IX | `Zariski closure: Lie algebra dim 6 = stabiliser` | derived |  |
 | IX | `G(R) keeps the 6 mu shape and preserves D` | derived |  |
@@ -1552,7 +1583,7 @@ block is stale.
 | XI | `z^k reach all 12 multipliers` | derived |  |
 | XI | `80 candidates, survivors exactly theta_1 / eta with e(beta/12)` | numerical |  |
 | XI | `control: e(beta/6) theta_1 / eta not fixed by T1` | numerical, control |  |
-| XI | `proof: classical laws + beta shift = chi/12 exactly, 5 generators` | derived, quoted | quoted: theta_1 and eta transformation laws (Mumford, Tata Lectures on Theta I, I.5 and I.7); **Theorem XI** |
+| XI | `proof: classical laws + beta shift = chi/12 exactly, 5 generators` | derived, quoted, Lean | quoted: theta_1 and eta transformation laws (Mumford, Tata Lectures on Theta I, I.5 and I.7); Lean: `theta_generator_exponents`; **Theorem XI** |
 | XI | `control: without the beta shift, L(S) and h(0,1,0) are not constant` | derived, control |  |
 | XI | `the quoted classical laws hold against the series` | numerical |  |
 | XI | `F = 0 on mu in Z + tau Z, nonzero at half periods` | quoted, numerical | quoted: zeros of theta_1 (Mumford, Tata I, I.5) |
@@ -1585,8 +1616,8 @@ block is stale.
 | XIV | `integer Phi: [S, U] = 0 and V flux integer, yet gap Chern +-1` | numerical |  |
 | XIV | `naive Weyl charpoly: exact at zero field, fails in a field` | numerical, control |  |
 
-57 checks: 30 derived, 28 numerical, 5 counted, 5 second route, 3 quoted, 6 control.
-No check from Part IX on is linked to a Lean fact. Lead 5 would add them.
+57 checks: 30 derived, 28 numerical, 5 counted, 5 second route, 3 quoted, 6 control, 2 Lean.
+2 checks are linked to 8 Lean facts (`sixsphere_lean.JACOBI_FACTS`, kernel-checked by `status_jacobi()`).
 Quoted inputs on Theorem XI's critical path: S and T generate SL(2, Z) (Serre, A Course in Arithmetic, VII.1); theta_1 and eta transformation laws (Mumford, Tata Lectures on Theta I, I.5 and I.7).
 
 <!-- /sixsphere_ledger -->
@@ -1657,7 +1688,9 @@ S.status()                  # Part I: the lattice layer
 S.status_periods()          # Part II: the period laws and the Kodaira routes
 S.status_cusp()             # Part III: the toric filling
 S.status_invariants()       # Part IV: topology and invariants
-L.status()                  # Part V: 30 facts, computed and machine-checked
+L.status()                  # Part V: 34 facts, computed and machine-checked
+L.status_certificates()     # 25 Smith/saturation certificates
+L.status_jacobi()           # 8 facts on Theorem XI's critical path
 S.ledger()                  # every quantity and its status
 
 S.pi1_three_routes()        # |p| three ways
@@ -1761,6 +1794,12 @@ T.get("complex-six-sphere")().describe()
   tampered certificate. They are a separate group from the 34: the counts
   above (thirty-four, twenty-nine choice-free) are for the main facts, and the
   certificates bring the checked total to fifty-nine.
+- **Theorem XI's finite steps in Lean: done.** `JACOBI_FACTS` (eight facts,
+  test [22]) kernel-checks the Heisenberg law, the homomorphism `f` for all
+  integers, `α`, `χ`, the holonomy words, the generation of `{f = 0}` for all
+  `(x, y, s)`, and the five theta exponents, on Lean 4.33.0. The checked total
+  is now sixty-seven. What remains outside the kernel on the critical path is
+  the two quoted inputs and step (v), the index count.
 - **Outside the flag class: excluded by an argument (written here, not
   machine-checked).** Take `T₁³ = T₂⁴ = I`, a cusp `N = T₀ − I` with `N² = 0`
   and rank 2, and coinvariants `Z`. Then `W = im(T₁−I) + im(T₂−I)` is a

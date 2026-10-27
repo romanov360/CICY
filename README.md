@@ -3243,6 +3243,15 @@ axiom, and `T₁` with `−5` in place of `−6`. All five are refused. Without 
 toolchain the file is still emitted, the Python half still runs, and nothing
 is claimed as checked.
 
+Two further groups are kept apart from the thirty-four: 25 Smith/saturation
+certificates (`CERT_FACTS`), and eight facts on the critical path of
+Theorem XI (`JACOBI_FACTS`, `L.status_jacobi()`): the Heisenberg law, `f`
+additive for all integers, `α` and `χ`, the holonomy words, `{f = 0}`
+generated for all `(x, y, s)`, and the five theta exponents. All 67 are
+kernel-checked on Lean 4.33.0. Lean still does not see the theta laws or
+`SL(2, Z) = ⟨S, T⟩` (both quoted, see the ledger), or the final index
+count.
+
 ```bash
 make sixsphere-lean     # emit SixSphereFacts.lean; kernel-check it if lean is found
 ```

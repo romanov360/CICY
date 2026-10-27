@@ -698,6 +698,62 @@ def test_lean_certificates():
                r["ok"] is False and len(r["errors"]) > 0)
 
 
+def test_lean_jacobi():
+    print("\n[22] Lean facts for Parts IX and XI: ker chi and the exponents")
+    import re
+    from pyCICY import sixsphere_lean as L
+    from pyCICY import sixsphere_gauge as G
+    from pyCICY.theories import nariai_lean as NL
+    py = L.check_python(L.JACOBI_FACTS)
+    check("number of Jacobi facts", len(py), 8)
+    check_true("every Jacobi fact computed True",
+               all(v is True for v in py.values()))
+    check("FACTS and CERT_FACTS untouched", (len(L.FACTS), len(L.CERT_FACTS)),
+          (34, 25))
+    src = L.lean_source(L.JACOBI_FACTS)
+    code = re.sub(r"/-.*?-/", "", src, flags=re.S)
+    code = re.sub(r"--[^\n]*", "", code)
+    check_true("no sorry, native_decide or axiom in the code",
+               not re.search(r"\b(sorry|native_decide|axiom)\b", code))
+    check_true("the words are the words of sixsphere_gauge.WORDS",
+               all(L._word_lean(w) in src for w in G.WORDS.values()))
+    check_true("the theta polynomials are generated from the lattice laws",
+               all("%s + %s = (%d) * t" % (L._poly_lean(P), L._poly_lean(Q), k)
+                   in src for _, P, Q, k, _ in L._theta_exponents()))
+    check("12 c per generator = chi(g)",
+          [(k - c) % 12 for _, _, _, k, c in L._theta_exponents()], [0] * 5)
+
+    if NL.lean_executable() is None:
+        st = L.status_jacobi()
+        check("toolchain", st["toolchain"], False)
+        check_true("without a kernel nothing is claimed machine-checked",
+                   not any(v["machine_checked"] for v in st["facts"].values()))
+        print("  (no lean found: the Jacobi facts are computed, not "
+              "kernel-checked)")
+        return
+    st = L.status_jacobi()
+    check("the kernel accepts the Jacobi facts", st["lean_ok"], True)
+    check_true("every Jacobi fact machine-checked", st["all_machine_checked"])
+    check_true("standard axioms only",
+               all(v["standard_axioms_only"] for v in st["facts"].values()))
+    for name, old, new in (
+            ("alpha(S) = 8 for 9", "(4 * 9) % 12 = 0", "(4 * 8) % 12 = 0"),
+            ("q = 0 on odd vectors too",
+             "then 0 else 1", "then 0 else 0"),
+            ("centre 7 for 6 in the cocycle",
+             "s + t + 6 * (c1 * d2 - c2 * d1)) := by",
+             "s + t + 7 * (c1 * d2 - c2 * d1)) := by"),
+            ("the last letter of h(0,1,6) dropped",
+             L._word_lean(G.WORDS["h(0,1,6)"]),
+             L._word_lean(G.WORDS["h(0,1,6)"][:-1])),
+            ("chi(L(S)) = 8 for 9 in the theta exponents",
+             "((-3) - 9) % 12 = 0", "((-3) - 8) % 12 = 0")):
+        assert old in src, name
+        r = L.check_lean(source=src.replace(old, new, 1))
+        check_true("control: %s is refused" % name,
+                   r["ok"] is False and len(r["errors"]) > 0)
+
+
 def main():
     test_monodromy()
     test_lattices()
@@ -720,6 +776,7 @@ def main():
     test_lean_python()
     test_lean_kernel()
     test_lean_certificates()
+    test_lean_jacobi()
     print()
     if FAILURES:
         print("FAILED: %d" % len(FAILURES))

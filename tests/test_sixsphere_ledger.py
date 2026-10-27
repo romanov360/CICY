@@ -5,7 +5,8 @@ Tests for pyCICY.sixsphere_ledger (the generated evidence ledger, Parts IX-XIV).
   [2] vocabulary   Q rows name a source, X rows a route; controls are labelled
   [3] Theorem XI   the quoted inputs on its critical path are exactly two
   [4] document     the generated block in AlpogeSixSphere.md is current
-  [5] controls     a dropped row, an extra row and a stray Q each fail the selftest
+  [5] controls     a dropped row, an extra row, a stray Q and a Lean link to a
+                   missing fact each fail the selftest
 
 Run with:  python3 tests/test_sixsphere_ledger.py   or   python3 run_tests.py
 """
@@ -54,9 +55,12 @@ def test_vocabulary():
     st = G.selftest(ROWS)
     for k in ("kinds in the vocabulary", "every Q has a source, every source a Q",
               "every X has a route, every route an X", "controls named as controls",
-              "L only where a Lean fact is named", "no Q or P row linked to Lean"):
+              "L only where a Lean fact is named", "no P row linked to Lean",
+              "every Lean link names a JACOBI_FACTS fact"):
         check_true(k, st[k])
-    check("no Lean fact from Part IX on (lead 5)", G.counts()["total"]["L"], 0)
+    check("Lean rows (lead 5)", G.counts()["total"]["L"], 2)
+    check_true("Lean never removes a quote: both Lean rows keep Q",
+               all("Q" in G.KIND[k] for k in G.LEAN))
 
 
 def test_theorem_xi():
@@ -67,6 +71,8 @@ def test_theorem_xi():
     check_true("SL(2, Z) generators among them", any("SL(2, Z)" in q for q in cq))
     check_true("every critical row is derived",
                all("D" in G.KIND[c] for c in G.CRITICAL))
+    check_true("both quoted critical rows carry Lean for their derived part",
+               all("L" in G.KIND[c] for c in G.CRITICAL if "Q" in G.KIND[c]))
 
 
 def test_document():
@@ -95,6 +101,14 @@ def test_controls():
         check_true("unsourced Q fails",
                    not G.selftest(ROWS)["every Q has a source, every source a Q"])
     finally:
+        G.KIND[key] = saved
+    G.LEAN[key] = ("no_such_fact",)
+    G.KIND[key] = saved + "L"
+    try:
+        check_true("Lean link to a missing fact fails",
+                   not G.selftest(ROWS)["every Lean link names a JACOBI_FACTS fact"])
+    finally:
+        del G.LEAN[key]
         G.KIND[key] = saved
     check_true("restored table passes", all(G.selftest(ROWS).values()))
 

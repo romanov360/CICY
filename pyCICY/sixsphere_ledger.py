@@ -12,13 +12,16 @@ from a closed vocabulary:
     Q  quoted       rests on a named result from the literature
     P  premise      carries a modelling step or an open parameter
     K  control      a negative check: something that must fail does
-    L  Lean         a kernel-checked fact in sixsphere_lean covers it
+    L  Lean         kernel-checked facts in sixsphere_lean cover its
+                    derived part (a quoted input stays Q)
 
 The table (:data:`KIND`) is hand-written, because "what does this check
 rest on" is a judgement. What is mechanical is that it is complete. Every
 printed check needs a row and every row needs a printed check. Every ``Q``
-needs a named source and every ``X`` a named second route. A ``Q`` or
-``P`` row is never linked to Lean. The approach is ported from
+needs a named source and every ``X`` a named second route, and every ``L``
+names facts of :data:`pyCICY.sixsphere_lean.JACOBI_FACTS`. A ``P`` row is
+never linked to Lean, and Lean never removes a ``Q``: on a quoted row it
+covers only the derived part, and the quote keeps its source. The approach is ported from
 ``spectre_ledger.py`` in the spectre repository, which also added ``N`` and
 ``K``: most checks from Part X on are floating point, and the controls
 should be visible as controls.
@@ -30,6 +33,13 @@ nothing else. There are two:
 
 - the classical theta_1 and eta laws (Mumford, Tata I);
 - that S and T generate SL(2, Z).
+
+Everything else on that path is kernel-checked in Lean 4 (lead 5): the
+Heisenberg law, f a homomorphism for all integers, q GL(2, F2)-invariant, the
+relations alpha satisfies, chi(T1) = chi(T2) = 0 and chi(z) = 1, the holonomy
+words, the generation of {f = 0} for all (x, y, s), and the five generator
+exponents of Part XI. What Lean does not see is the group-theory step (v) of
+``holonomy_index`` and the two quoted inputs.
 
     python3 -m pyCICY.sixsphere_ledger            # table
     python3 -m pyCICY.sixsphere_ledger --write    # refresh the block in AlpogeSixSphere.md
@@ -62,7 +72,7 @@ KIND = {
     ("gauge", "delta^ = Q0(gamma, .)"): "D",
     ("gauge", "commutant <I, gamma (x) delta^>"): "D",
     ("gauge", "automorphisms of (Q0, gamma) = Jacobi group, r forced"): "D",
-    ("gauge", "<T1, T2> = ker chi, index 12"): "DQ",
+    ("gauge", "<T1, T2> = ker chi, index 12"): "DQL",
     ("gauge", "control: Levi lifts have chi = (4, 9), cusp rank 1"): "DK",
     ("gauge", "Zariski closure: Lie algebra dim 6 = stabiliser"): "D",
     ("gauge", "G(R) keeps the 6 mu shape and preserves D"): "D",
@@ -85,7 +95,7 @@ KIND = {
     ("theta", "z^k reach all 12 multipliers"): "D",
     ("theta", "80 candidates, survivors exactly theta_1 / eta with e(beta/12)"): "N",
     ("theta", "control: e(beta/6) theta_1 / eta not fixed by T1"): "NK",
-    ("theta", "proof: classical laws + beta shift = chi/12 exactly, 5 generators"): "DQ",
+    ("theta", "proof: classical laws + beta shift = chi/12 exactly, 5 generators"): "DQL",
     ("theta", "control: without the beta shift, L(S) and h(0,1,0) are not constant"): "DK",
     ("theta", "the quoted classical laws hold against the series"): "N",
     ("theta", "F = 0 on mu in Z + tau Z, nonzero at half periods"): "QN",
@@ -142,8 +152,14 @@ SECOND_ROUTE = {
         "pyCICY/quantum_curve.py, which builds HSX's operator from the toric polygon alone",
 }
 
-# Lean facts in sixsphere_lean that cover a check. None from Part IX on: lead 5.
-LEAN = {}
+# Lean facts in sixsphere_lean.JACOBI_FACTS that cover a check's derived part.
+LEAN = {
+    ("gauge", "<T1, T2> = ker chi, index 12"):
+        ("heis_group_law", "f_homomorphism", "q_gl2f2_invariant",
+         "alpha_relations", "chi_values", "holonomy_words", "f_zero_generated"),
+    ("theta", "proof: classical laws + beta shift = chi/12 exactly, 5 generators"):
+        ("theta_generator_exponents",),
+}
 
 # The checks Theorem XI rests on: the multiplier law, and that its kernel is <T1, T2>.
 CRITICAL = [
@@ -191,13 +207,20 @@ def selftest(rows=None):
             {k for k, v in KIND.items() if "X" in v} == set(SECOND_ROUTE),
         "L only where a Lean fact is named":
             {k for k, v in KIND.items() if "L" in v} == set(LEAN),
-        "no Q or P row linked to Lean":
-            not any(set(KIND[k]) & set("QP") for k in LEAN),
+        "no P row linked to Lean":
+            not any("P" in KIND[k] for k in LEAN),
+        "every Lean link names a JACOBI_FACTS fact": _lean_names_exist(),
         "controls named as controls":
             all(("K" in v) == ("control" in k[1].lower() or "fails" in k[1])
                 for k, v in KIND.items()),
         "critical path covered": all(c in KIND for c in CRITICAL),
     }
+
+
+def _lean_names_exist():
+    from .sixsphere_lean import JACOBI_FACTS
+    names = {f.name for f in JACOBI_FACTS}
+    return all(v and set(v) <= names for v in LEAN.values())
 
 
 def critical_quoted():
@@ -235,6 +258,8 @@ def markdown():
             notes.append("quoted: " + QUOTED[key])
         if key in SECOND_ROUTE:
             notes.append("second route: " + SECOND_ROUTE[key])
+        if key in LEAN:
+            notes.append("Lean: " + ", ".join("`%s`" % n for n in LEAN[key]))
         if key in CRITICAL:
             notes.append("**Theorem XI**")
         name = key[1].replace("|", "\\|")
@@ -244,7 +269,9 @@ def markdown():
     t = counts()["total"]
     out += ["", "%d checks: %s." % (len(KIND), ", ".join(
         "%d %s" % (t[k], _NAMES[k]) for k in VOCABULARY if t[k])),
-        "No check from Part IX on is linked to a Lean fact. Lead 5 would add them.",
+        "%d checks are linked to %d Lean facts (`sixsphere_lean.JACOBI_FACTS`, "
+        "kernel-checked by `status_jacobi()`)." % (
+            len(LEAN), len({n for v in LEAN.values() for n in v})),
         "Quoted inputs on Theorem XI's critical path: %s." % "; ".join(critical_quoted()),
         "", END]
     return "\n".join(out)

@@ -110,6 +110,12 @@ stating on their own:
    exactly for every class, and each class has a theta function, the pullback
    of Part XI's. Its zeros are the origin orbit, refuting the `d`-torsion
    conjecture.
+13. **The odd characteristic is the lattice LLL's boundary condition.** At
+   one flux quantum per cusp domain, the substrate's lowest band is an
+   isolated Chern-1 Landau level. Each site amplitude vanishes exactly once
+   on the twist torus, at `k/2π = (½ − v, ½ + u)`, so the C site is reached at
+   the antiperiodic twist `(½, ½)`: `θ₁`'s odd characteristic. The continuum
+   `θ₁` Landau level on the same torus obeys the same law.
 
 What is *not* here is the theorem. That `X` is diffeomorphic to `S⁶` is
 declined, and nothing in this package bears on whether the proof is correct
@@ -1200,7 +1206,8 @@ starts from `T₁`, `T₂`" (Part I). Theorem XI says what the group they genera
    with one flux quantum. Parts IX, X and XI become three readings of one
    object: the monodromy character, the substrate in a field, and the theta
    multiplier. That is what makes the next tests concrete: whether the
-   lattice's lowest Landau level has its zero at the C site, and whether each
+   lattice's lowest Landau level has its zero at the C site (Part XIII: yes,
+   at the odd twist), and whether each
    near-miss class has its own theta function (Part XII: yes, by isogeny,
    though its zeros are the origin orbit, not the `d`-torsion sites).
 
@@ -1256,6 +1263,62 @@ reaches `|p| = 1`, so the paper's data stays the only candidate. What changed
 is the reason: the near misses fail on `p` alone, not on any analytic
 obstruction, since analytically they are isogenous copies of the paper's
 fibration.
+
+---
+
+## Part XIII: the lowest Landau level, and `θ₁`'s zero at the C site
+
+Code: `pyCICY/cusp_lll.py` (`tests/test_cusp_lll.py`, about 7 s). Part XI's
+`F` vanishes on `μ ∈ Z + τZ`, the C site of Part X's substrate, and the odd
+characteristic `(½, ½)` of `θ₁` was forced there for algebraic reasons. In
+the continuum, `θ₁` is the lowest Landau level on a torus with one flux
+quantum, and its characteristic is a boundary condition. This part asks the
+lattice the same question.
+
+1. **One flux quantum, one cell.** With `Φ = 6φ = 1` (kite flux `1/6`) and
+   the Landau gauge of Part X, magnetic translations by the cusp lattice
+   commute. The covariant boundary conditions
+   `ψ(u+1, v) = e^{ik₁} e^{2πiΦv} ψ`, `ψ(u, v+1) = e^{ik₂} ψ` give a `6 × 6`
+   magnetic Bloch Hamiltonian, one orbital per substrate site, sign `−A`
+   (hopping `−1`).
+2. **The lowest band is a Landau level.** It is isolated, filling
+   `[−2√3, −√6]`, with the next band from `−√3`. Its Chern number is 1 by two
+   routes: FHS on the one-cell bundle, and Part X's `gap_cherns(1/6)` on the
+   `6 × 1` supercell (the `+A` model's top band; the graph is bipartite).
+   The characteristic polynomials at the symmetric twists are
+   `E⁴(E² − 6)` (C-zero twist, the band top), `(E² − 2)(E⁴ − 12E² + 8)`
+   (E-zero twists) and `E²(E² − 3)(E² − 12)` (V-zero twists, the band bottom).
+   Their coefficients come out integers to `1e-13` and are rounded before
+   factoring.
+3. **Its zeros are `θ₁`'s.** A Chern-1 band has no global nonvanishing
+   section, so each site amplitude `ψ_s(k)` must vanish on the twist torus. It
+   vanishes exactly once, at `k/2π = (½ − v_s, ½ + u_s) mod 1`:
+
+   | site | `(u, v)` | zero at twist |
+   |---|---|---|
+   | C | `(0, 0)` | `(½, ½)`, odd |
+   | E | `(½, 0)` | `(½, 0)` |
+   | E | `(0, ½)` | `(0, ½)` |
+   | E | `(½, ½)` | `(0, 0)`, periodic |
+   | V | `(⅓, ⅓)` | `(⅙, ⅚)` |
+   | V | `(⅔, ⅔)` | `(⅚, ⅙)` |
+
+   The C site is reached at the antiperiodic twist, the odd spin structure.
+4. **The same law in the continuum.** The LLL of `−(∇ − iA)²` on the cusp
+   torus (`τ = e^{iπ/3}`, same gauge and boundary conditions) is
+   `e^{g} e^{az + bz²} θ₁((z − z₀)/ω₁ | τ)` with `g` fixed by the gauge.
+   Fitting `a, b` for a prescribed zero `z₀` and reading off the twist gives
+   the same affine law at the six sites and at a generic point. Lattice and
+   continuum states have overlap 0.978–0.997 on the six sites.
+5. **Controls.** With no field the lowest band has Chern number 0. At the
+   periodic twist the C amplitude is nonzero; the zero sits on the E site
+   `(½, ½)`.
+
+What it does not claim: a derivation of `χ` from an electron model, or that
+electrons live on the six-sphere. It shows that the characteristic Part IX
+needed algebraically is the one at which the substrate's lowest Landau level
+vanishes on the C site. The zero positions are measured (to `1e-15` at the
+predicted twists, and unique on a 48² grid), not proved.
 
 ---
 
@@ -1341,6 +1404,8 @@ means not computed here, with the reason.
 | substrate charpoly in A₂ invariants; zero modes on the mirror lines | exact (symbolic), lines checked on a grid |
 | Hat graph ⊂ substrate; Hat face fluxes 8φ, 10φ; period 1/2 | asserted on a level-3 patch; the period is exact given the face sizes |
 | substrate Chern numbers: FHS = TKNN = Kitaev on wide gaps | two routes, numerical integers |
+| `Φ = 1` lowest band: isolated in `[−2√3, −√6]`, Chern 1 | two routes (one-cell FHS, Part X supercell); endpoints from integer charpolys |
+| LLL site zeros at `k/2π = (½ − v, ½ + u)`; C site at the odd twist | numerical (`1e-15`), unique on the grid; same law in the continuum `θ₁` LLL |
 | no quantised Chern gap on the Hat patch | measured, one patch of 2948 sites |
 | `X` diffeomorphic to `S⁶` | declined; formalised externally in plby/HopfProblem, not re-run here |
 
@@ -1386,6 +1451,7 @@ python3 tests/test_sixsphere_gauge.py          # Part IX, about a minute
 python3 tests/test_cusp_hofstadter.py          # Part X, about 10 s
 python3 tests/test_sixsphere_theta.py          # Part XI, about 3 s
 python3 tests/test_sixsphere_classes.py        # Part XII, about 3 s
+python3 tests/test_cusp_lll.py                 # Part XIII, about 7 s
 python3 paper/make_sixsphere_hat_hofstadter.py   # Part X figure (needs ../spectre), about 15 min
 ```
 
@@ -1449,6 +1515,11 @@ Cl.status_classes()         # Part XII: isogeny, index 12 and d | p for every cl
 Cl.reachable_p(2)           # exact reachable p residues mod 12
 Cl.zero_divisor_d(3)        # F_d zeros: origin orbit, not d-torsion
 
+from pyCICY import cusp_lll as LL
+LL.status_lll()             # Part XIII: Chern-1 LLL, theta_1's zero at the C site
+LL.site_zeros()             # each site's zero on the twist torus
+LL.continuum_twist(0, 0)    # the continuum theta_1 LLL: the same twist
+
 T.get("complex-six-sphere")().describe()
 ```
 
@@ -1456,13 +1527,14 @@ T.get("complex-six-sphere")().describe()
 
 ## What remains open
 
-- **Beyond Part XII.** Theorem XI is proved, and Part XII carries it to the
+- **Beyond Part XIII.** Theorem XI is proved, and Part XII carries it to the
   three near-miss classes (`d = 2, 3, 6`) by isogeny: each has its own theta
   function `F_d`, index 12, and zeros on the origin orbit rather than the
-  `d`-torsion. Still open: does the zero divisor of `F` meet the boundary of
-  the period domain at the cusp fibre? And does the odd spin structure that
-  `θ₁` selects agree with the boundary condition of Part X's lowest Landau
-  level, with its zero at the C site?
+  `d`-torsion. Part XIII answers the spin-structure question: the substrate's
+  lowest Landau level at one flux quantum vanishes on the C site exactly at
+  the odd twist `(½, ½)`, as `θ₁` does. Still open: does the zero divisor of
+  `F` meet the boundary of the period domain at the cusp fibre? And can the
+  zero law `(½ − v, ½ + u)` be proved on the lattice, not only measured?
 - **`h¹²`.** The one Hodge number neither the paper nor this implementation
   determines. The paper expects 1, and says what a computation would need: the
   direct images of `Ω¹` and `Ω²`, with the torsion of the relative forms along

@@ -3380,11 +3380,24 @@ refuted; its zeros are the origin orbit `d(Z + τZ)`, and a `d²`-characteristic
 control confirms no other choice works. Only `d = 1` reaches `|p| = 1`.
 `AlpogeSixSphere.md`, Part XII.
 
+### The lowest Landau level vanishes on the C site at the odd twist
+
+`pyCICY.cusp_lll` puts one flux quantum through each cusp domain (kite flux
+`1/6`). The substrate's lowest band is then an isolated Chern-1 Landau level,
+in `[−2√3, −√6]`; the Chern number comes by two routes. Each site amplitude
+vanishes exactly once on the twist torus, at `k/2π = (½ − v, ½ + u)`. So the C
+site, where Part XI's `θ₁` vanishes, is reached at the antiperiodic twist
+`(½, ½)`: `θ₁`'s odd characteristic. The continuum `θ₁` Landau level on the
+same torus obeys the same law, and the lattice and continuum states overlap
+above 0.97. Controls: with no field the Chern number is 0, and the periodic
+twist puts the zero on an E site. `AlpogeSixSphere.md`, Part XIII.
+
 ```bash
 python3 tests/test_sixsphere_gauge.py          # about a minute
 python3 tests/test_cusp_hofstadter.py          # about 10 s
 python3 tests/test_sixsphere_theta.py          # about 3 s
 python3 tests/test_sixsphere_classes.py        # about 3 s
+python3 tests/test_cusp_lll.py                 # about 7 s
 SPECTRE_DIR=../spectre python3 paper/make_sixsphere_hat_hofstadter.py   # ss_hat_hofstadter.png
 ```
 

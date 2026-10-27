@@ -3394,12 +3394,32 @@ same torus obeys the same law, and the lattice and continuum states overlap
 above 0.97. Controls: with no field the Chern number is 0, and the periodic
 twist puts the zero on an E site. `AlpogeSixSphere.md`, Part XIII.
 
+### The substrate's square contains the quantised dP₆ hexagon
+
+`pyCICY.cusp_mirror` asks whether the substrate's Hofstadter spectrum is a
+polynomial in the quantised dP₆ hexagon, the triangular lattice in a field
+(Hatsuda–Katsura–Tachikawa; Hatsuda–Sugimoto–Xu). It is not.
+- At zero field, `ΔΔ̄ = 12 − s² + 4u` needs a second, independent hexagon
+  `u` on the index-3 sublattice.
+- At integer flux per cell, the hexagon operators commute while the
+  substrate has gaps of Chern `±1`.
+
+What holds exactly is an identity on the C and V sites:
+`H² = [[6 + S, [2]_q K], [·, 3 + H_V]]`.
+- `S` is the quantised `B₃` curve at `Φ = 6φ mod 2`, matched against
+  `pyCICY.quantum_curve` moment by moment.
+- `H_V` is a honeycomb, and `[2]_q = 2cos πφ`.
+- At `φ = ½` the blocks decouple and the spectrum is gapless.
+
+`AlpogeSixSphere.md`, Part XIV.
+
 ```bash
 python3 tests/test_sixsphere_gauge.py          # about a minute
 python3 tests/test_cusp_hofstadter.py          # about 10 s
 python3 tests/test_sixsphere_theta.py          # about 3 s
 python3 tests/test_sixsphere_classes.py        # about 3 s
 python3 tests/test_cusp_lll.py                 # about 7 s
+python3 tests/test_cusp_mirror.py              # about 5 s
 SPECTRE_DIR=../spectre python3 paper/make_sixsphere_hat_hofstadter.py   # ss_hat_hofstadter.png
 ```
 

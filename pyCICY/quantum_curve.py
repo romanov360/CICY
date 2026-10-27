@@ -26,8 +26,8 @@ a square lattice in a magnetic field, with
 
     hbar = 2 pi Phi ,     Phi = magnetic flux per unit cell.
 
-Sugimoto, "Calabi-Yau geometry and electrons on 2d lattices",
-arXiv:1701.01561 (Phys. Rev. D 95, 086004), extended this: local B_3, the
+Hatsuda, Sugimoto and Xu, "Calabi-Yau geometry and electrons on 2d
+lattices", arXiv:1701.01561 (Phys. Rev. D 95, 086004), extended this: local B_3, the
 three-point blow-up of local P^2, has a hexagonal Newton polygon and gives
 electrons on a *triangular* lattice. The general statement is a dictionary,
 

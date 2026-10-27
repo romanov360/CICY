@@ -116,6 +116,16 @@ stating on their own:
    on the twist torus, at `k/2π = (½ − v, ½ + u)`, so the C site is reached at
    the antiperiodic twist `(½, ½)`: `θ₁`'s odd characteristic. The continuum
    `θ₁` Landau level on the same torus obeys the same law.
+14. **The quantised dP₆ hexagon sits inside the substrate's square.** The
+   substrate's spectrum in a field is not a polynomial in the triangular
+   Hofstadter operator at the same flux. Even at zero field it needs a
+   second hexagon, on the index-3 sublattice. What holds is an exact
+   identity: on the C and V sites,
+   `H² = [[6 + S, [2]_q K], [·, 3 + H_V]]`. Here `S` is the quantised `B₃`
+   curve at `Φ = 6φ`, `H_V` is a honeycomb, and `[2]_q = 2cos πφ`. At
+   `φ = 1/6, 1/3` both diagonal blocks are commutative, while the substrate
+   has gaps of Chern `±1`. So the Chern number is carried by the
+   `[2]_q`-weighted coupling.
 
 What is *not* here is the theorem. That `X` is diffeomorphic to `S⁶` is
 declined, and nothing in this package bears on whether the proof is correct
@@ -1326,6 +1336,79 @@ needed algebraically is the one at which the substrate's lowest Landau level
 vanishes on the C site. The zero positions are measured (to `1e-15` at the
 predicted twists, and unique on a 48² grid), not proved.
 
+## Part XIV: the substrate in a field against the quantised dP₆ hexagon
+
+Code: `pyCICY/cusp_mirror.py` (`tests/test_cusp_mirror.py`, about 5 s).
+
+**The question.** Part X's characteristic polynomial,
+`E⁶ − (12 + s)E⁴ − 3(s − 6)E² − ΔΔ̄`, carries the hexagon
+`s = x + 1/x + y + 1/y + x/y + y/x` in every coefficient but the last. The
+hexagon is the Newton polygon of local `B₃ = dP₆`. Its Weyl quantisation is
+the triangular lattice in a field (Hatsuda, Sugimoto and Xu,
+arXiv:1701.01561, extending Hatsuda, Katsura and Tachikawa,
+arXiv:1606.01894). So it is natural to ask whether the substrate's
+Hofstadter spectrum is a polynomial function of the quantised hexagon at
+the same flux. It is not. What holds instead is an exact identity in which
+the quantised hexagon appears literally.
+
+1. **Zero field needs two hexagons.** Exactly, `ΔΔ̄ = 12 − s² + 4u`, where
+   `u = xy + 1/(xy) + x²/y + y/x² + y²/x + x/y²`.
+   - `u` is the long-root hexagon: the dP₆ hexagon on the index-3 sublattice
+     spanned by `(1,1)` and `(2,−1)`, which is where the 3-torsion V sites
+     put it.
+   - `s` and `u` are algebraically independent (their Jacobian is nonzero).
+   - So the zero-field spectrum is already a function of the pair `(s, u)`,
+     not of `s` alone.
+2. **The exact identity.** The graph is bipartite (E against C ∪ V), so `H²`
+   preserves `C ∪ V`. Use the straight-line Landau gauge, with
+   `q = e^{2πiφ}` and `[2]_q = q^{½} + q^{−½} = 2cos πφ`. Then, for every
+   kite flux `φ`:
+
+   | block | value |
+   |---|---|
+   | `C–C` | `6 + S`; `S` = straight-line Peierls hops along the six short roots |
+   | `V–V` | `3 + H_V`; `H_V` = the V honeycomb, straight-line Peierls |
+   | `C–V` | `[2]_q · K`; `K` = straight-line Peierls hops between the two ends of a kite |
+   | `E–(C ∪ V)` | 0 |
+
+   This is checked on an open patch at `φ = 0, ½, ⅓, ¼, ⅕, ⅙, 2/7` (residual
+   `1e-15`). `H²_CC = 6 + S` is also checked on Part X's magnetic supercell.
+   The `[2]_q` comes from the two two-step paths C → E → V around one kite:
+   they differ by the kite's flux.
+3. **`S` is the quantised hexagon.** On the C lattice, `S` is
+   `QuantumCurve.from_polygon("B3")` at flux `Φ = 6φ mod 2`.
+   - The period is 2, not 1, because a C triangle carries half a cell.
+   - The check is on the gauge-invariant moments `tr Sⁿ / dim` for
+     `n ≤ 10`, averaged exactly over the zone (relative difference `1e-12`),
+     at seven fluxes.
+4. **`φ = ½` decouples.** `[2]_q = 0`, so `spec H² = spec(6 + S) ∪ spec(3 + H_V)`.
+   - `S` is the π-flux triangular lattice, with symbol
+     `2cos k₁ + 2cos k₂ − 2cos(k₁ − k₂)` on `[−6, 3]`.
+   - The spectrum fills `[−3, 3]` with no gap.
+5. **The Chern number is in the coupling.** At `φ = ⅙` and `⅓` the flux per
+   cell is an integer.
+   - `S` commutes with the long-root operator `U` to `1e-14`; at `φ = 1/10`
+     the commutator is of order 1.
+   - The V hexagon encloses integer flux.
+   - So every spectral projection of a function of `S` and `U` is a sum of
+     plane-wave line bundles, with Chern number 0.
+   - Yet the substrate's gaps at these fluxes have Chern numbers `−1, +1`
+     (Parts X and XIII).
+   - So no spectral projection of the substrate is a function of the
+     quantised dP₆ curve at the same flux. The Chern number lives in the
+     `[2]_q`-weighted C–V coupling.
+6. **Control.** Substitute the Weyl-quantised `S` and `U` into the zero-field
+   polynomial in `(s, u)` and take a determinant.
+   - At zero field this reproduces `det(E − H)` (residual `1e-12`).
+   - At `φ = ⅙, 1/12, 1/9` it is off by a relative factor of about `10⁸`.
+
+**What it claims.** An exact local identity, a moment-by-moment match with the
+quantised hexagon, and the falsification of the naive form, with the reason.
+
+**What it does not claim.** A derivation of the substrate's gap Chern numbers
+from the topological string, or anything about the spectral problem of the
+full two-hexagon curve.
+
 ---
 
 ## The ledger, filled in
@@ -1412,6 +1495,11 @@ means not computed here, with the reason.
 | substrate Chern numbers: FHS = TKNN = Kitaev on wide gaps | two routes, numerical integers |
 | `Φ = 1` lowest band: isolated in `[−2√3, −√6]`, Chern `±1` by orientation | two routes in Part X's orientation (one-cell FHS, supercell; states unfold exactly), pyqula a third; endpoints from integer charpolys |
 | LLL site zeros at `k/2π = (½ − v, ½ + u)`; C site at the odd twist | numerical (`1e-15`), unique on the grid; same law in the continuum `θ₁` LLL |
+| `ΔΔ̄ = 12 − s² + 4u`, `u` the long-root hexagon; `s, u` independent | exact (symbolic) |
+| `H²` on `C ∪ V` = `[[6 + S, [2]_q K], [·, 3 + H_V]]` | numerical identity (`1e-15`), patch and supercell, seven fluxes |
+| `S` = quantised `B₃` hexagon at `Φ = 6φ mod 2` | two routes (`cusp_mirror` against `quantum_curve`), moments to `1e-12` |
+| `φ = ½`: C and V decouple, spectrum gapless on `[−3, 3]` | numerical; `gap_cherns` finds no gap |
+| integer `Φ`: `[S, U] = 0` yet substrate gap Chern `±1` | numerical; the polynomial-in-the-hexagon form refuted |
 | no quantised Chern gap on the Hat patch | measured, one patch of 2948 sites |
 | `X` diffeomorphic to `S⁶` | declined; formalised externally in plby/HopfProblem, not re-run here |
 
@@ -1458,6 +1546,7 @@ python3 tests/test_cusp_hofstadter.py          # Part X, about 10 s
 python3 tests/test_sixsphere_theta.py          # Part XI, about 3 s
 python3 tests/test_sixsphere_classes.py        # Part XII, about 3 s
 python3 tests/test_cusp_lll.py                 # Part XIII, about 7 s
+python3 tests/test_cusp_mirror.py              # Part XIV, about 5 s
 python3 paper/make_sixsphere_hat_hofstadter.py   # Part X figure (needs ../spectre), about 15 min
 ```
 
@@ -1526,6 +1615,10 @@ LL.status_lll()             # Part XIII: the LLL at Phi = 1, theta_1's zero at t
 LL.site_zeros()             # each site's zero on the twist torus
 LL.continuum_twist(0, 0)    # the continuum theta_1 LLL: the same twist
 
+from pyCICY import cusp_mirror as Mi
+Mi.status_mirror()          # Part XIV: H^2 on C u V, the quantised dP6 hexagon
+Mi.square_identity(1/5)     # the block residuals on a patch (pass a Fraction)
+
 T.get("complex-six-sphere")().describe()
 ```
 
@@ -1533,6 +1626,13 @@ T.get("complex-six-sphere")().describe()
 
 ## What remains open
 
+- **After Part XIV.** The substrate's square contains the quantised dP₆
+  hexagon exactly. Its Chern numbers live in the `[2]_q` coupling to the V
+  honeycomb. Two questions are open:
+  - Is the full two-block operator the quantisation of some curve, perhaps
+    one with a second hexagon `u` and the quantum integer as a coefficient?
+  - If so, does the topological string's spectral theory see the substrate's
+    Chern numbers?
 - **Beyond Part XIII.** Theorem XI is proved, and Part XII carries it to the
   three near-miss classes (`d = 2, 3, 6`) by isogeny: each has its own theta
   function `F_d`, index 12, and zeros on the origin orbit rather than the
@@ -1672,6 +1772,10 @@ T.get("complex-six-sphere")().describe()
   hypothetical complex structure on S⁶*, Differential Geom. Appl. 57, 121–137.
 - C. LeBrun (1987), *Orthogonal complex structures on S⁶*, Proc. Amer. Math.
   Soc. 101, 136–138.
+- Y. Hatsuda, H. Katsura, Y. Tachikawa (2016), *Hofstadter's butterfly in
+  quantum geometry*, New J. Phys. 18, 103023, arXiv:1606.01894.
+- Y. Hatsuda, Y. Sugimoto, Z. Xu (2017), *Calabi-Yau geometry and electrons
+  on 2d lattices*, Phys. Rev. D 95, 086004, arXiv:1701.01561.
 - K. Kodaira (1964–68), *On the structure of compact complex analytic surfaces
   I–III*, Amer. J. Math. 86, 88, 90.
 - D. Mumford (1972), *An analytic construction of degenerating abelian

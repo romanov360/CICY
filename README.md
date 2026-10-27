@@ -3383,9 +3383,11 @@ control confirms no other choice works. Only `d = 1` reaches `|p| = 1`.
 ### The lowest Landau level vanishes on the C site at the odd twist
 
 `pyCICY.cusp_lll` puts one flux quantum through each cusp domain (kite flux
-`1/6`). The substrate's lowest band is then an isolated Chern-1 Landau level,
-in `[−2√3, −√6]`; the Chern number comes by two routes. Each site amplitude
-vanishes exactly once on the twist torus, at `k/2π = (½ − v, ½ + u)`. So the C
+`1/6`). The substrate's lowest band is then an isolated Landau level in
+`[−2√3, −√6]`, with Chern number `±1` depending on the field's orientation. In
+Part X's orientation it is `−1` by two routes, and the one-cell states unfold
+exactly onto Part X's supercell. Each site amplitude vanishes exactly once on
+the twist torus, at `k/2π = (½ − v, ½ + u)`. So the C
 site, where Part XI's `θ₁` vanishes, is reached at the antiperiodic twist
 `(½, ½)`: `θ₁`'s odd characteristic. The continuum `θ₁` Landau level on the
 same torus obeys the same law, and the lattice and continuum states overlap

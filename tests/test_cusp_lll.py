@@ -4,8 +4,10 @@ at one flux quantum, and theta_1's odd characteristic as its C-site zero).
 
   [1] bloch        6 x 6 magnetic Bloch Hamiltonian is Hermitian; exact and
                    float matrices agree
-  [2] band         lowest band isolated in [-2 sqrt 3, -sqrt 6]; Chern 1 by
-                   two routes; band ends at the C- and V-zero twists
+  [2] band         lowest band isolated in [-2 sqrt 3, -sqrt 6]; Chern 1 here,
+                   -1 in Part X's orientation by two routes (the 1-cell states
+                   unfold onto Part X's supercell); band ends at the C- and
+                   V-zero twists
   [3] zeros        each site amplitude vanishes once, at (1/2 - v, 1/2 + u);
                    the C site at the odd twist (1/2, 1/2)
   [4] continuum    the theta_1 LLL obeys the same twist law; overlaps > 0.97
@@ -59,9 +61,13 @@ def test_band():
                abs(lb["range"][0] + 2 * sqrt(3)) < 1e-9
                and abs(lb["range"][1] + sqrt(6)) < 1e-9)
     check_true("next band starts at -sqrt 3", abs(lb["next_band_min"] + sqrt(3)) < 1e-9)
-    check("Chern, 1-cell FHS", round(lb["chern_1cell"], 6), 1)
-    check("Chern, 6 x 1 supercell (Part X)",
-          round(lb["chern_supercell_top_of_plus_A"], 6), 1)
+    check("Chern, 1-cell FHS, this orientation", round(lb["chern_1cell"], 6), 1)
+    check("Chern, 1-cell FHS, Part X's orientation", round(lb["chern_1cell_partX"], 6), -1)
+    check("Chern, 6 x 1 supercell (Part X), lowest band",
+          round(lb["chern_supercell_partX"], 6), -1)
+    em = L.partx_embedding()
+    check_true("Phi = -1 unfolds onto Part X's supercell (residual < 1e-10)", em[-1] < 1e-10)
+    check_true("control: Phi = +1 does not", em[1] > 1e-2)
     be = L.band_ends_exact()
     check("charpoly at C-zero twist", str(be["C"]["charpoly"]), "E**4*(E**2 - 6)")
     check("charpoly at E-zero twist", str(be["E"]["charpoly"]),

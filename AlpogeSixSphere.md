@@ -112,7 +112,7 @@ stating on their own:
    conjecture.
 13. **The odd characteristic is the lattice LLL's boundary condition.** At
    one flux quantum per cusp domain, the substrate's lowest band is an
-   isolated Chern-1 Landau level. Each site amplitude vanishes exactly once
+   isolated Landau level with Chern number `±1` (sign by field orientation). Each site amplitude vanishes exactly once
    on the twist torus, at `k/2π = (½ − v, ½ + u)`, so the C site is reached at
    the antiperiodic twist `(½, ½)`: `θ₁`'s odd characteristic. The continuum
    `θ₁` Landau level on the same torus obeys the same law.
@@ -1280,11 +1280,17 @@ lattice the same question.
    commute. The covariant boundary conditions
    `ψ(u+1, v) = e^{ik₁} e^{2πiΦv} ψ`, `ψ(u, v+1) = e^{ik₂} ψ` give a `6 × 6`
    magnetic Bloch Hamiltonian, one orbital per substrate site, sign `−A`
-   (hopping `−1`).
+   (hopping `−1`). Its Peierls factor is `e^{i∫_b^a A}`, the opposite
+   orientation to Part X's: `Φ = −1` here unfolds exactly onto Part X's
+   `6 × 1` supercell at `φ = +1/6` (residual `1e-15`), and `Φ = +1` does not.
 2. **The lowest band is a Landau level.** It is isolated, filling
-   `[−2√3, −√6]`, with the next band from `−√3`. Its Chern number is 1 by two
-   routes: FHS on the one-cell bundle, and Part X's `gap_cherns(1/6)` on the
-   `6 × 1` supercell (the `+A` model's top band; the graph is bipartite).
+   `[−2√3, −√6]`, with the next band from `−√3`. Its Chern number is `+1` in
+   this orientation. In Part X's orientation it is `−1` by two routes: FHS on
+   the one-cell bundle at `Φ = −1`, and Part X's `gap_cherns(1/6)` on the
+   supercell (the gap above the lowest band); `quantum-lattice`'s pyqula
+   model gives `−1` as a third. Reversing the field flips the sign and maps
+   the twist `k` to `−k`, which fixes `(½, ½)`, so point 3's C-site statement
+   holds in either orientation.
    The characteristic polynomials at the symmetric twists are
    `E⁴(E² − 6)` (C-zero twist, the band top), `(E² − 2)(E⁴ − 12E² + 8)`
    (E-zero twists) and `E²(E² − 3)(E² − 12)` (V-zero twists, the band bottom).
@@ -1404,7 +1410,7 @@ means not computed here, with the reason.
 | substrate charpoly in A₂ invariants; zero modes on the mirror lines | exact (symbolic), lines checked on a grid |
 | Hat graph ⊂ substrate; Hat face fluxes 8φ, 10φ; period 1/2 | asserted on a level-3 patch; the period is exact given the face sizes |
 | substrate Chern numbers: FHS = TKNN = Kitaev on wide gaps | two routes, numerical integers |
-| `Φ = 1` lowest band: isolated in `[−2√3, −√6]`, Chern 1 | two routes (one-cell FHS, Part X supercell); endpoints from integer charpolys |
+| `Φ = 1` lowest band: isolated in `[−2√3, −√6]`, Chern `±1` by orientation | two routes in Part X's orientation (one-cell FHS, supercell; states unfold exactly), pyqula a third; endpoints from integer charpolys |
 | LLL site zeros at `k/2π = (½ − v, ½ + u)`; C site at the odd twist | numerical (`1e-15`), unique on the grid; same law in the continuum `θ₁` LLL |
 | no quantised Chern gap on the Hat patch | measured, one patch of 2948 sites |
 | `X` diffeomorphic to `S⁶` | declined; formalised externally in plby/HopfProblem, not re-run here |
@@ -1516,7 +1522,7 @@ Cl.reachable_p(2)           # exact reachable p residues mod 12
 Cl.zero_divisor_d(3)        # F_d zeros: origin orbit, not d-torsion
 
 from pyCICY import cusp_lll as LL
-LL.status_lll()             # Part XIII: Chern-1 LLL, theta_1's zero at the C site
+LL.status_lll()             # Part XIII: the LLL at Phi = 1, theta_1's zero at the C site
 LL.site_zeros()             # each site's zero on the twist torus
 LL.continuum_twist(0, 0)    # the continuum theta_1 LLL: the same twist
 

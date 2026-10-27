@@ -21,14 +21,22 @@ band.
 
    so the magnetic Bloch Hamiltonian is 6 x 6, one orbital per substrate site,
    with the same Landau gauge as :func:`pyCICY.cusp_hofstadter.landau_phase`.
-   The sign is -A (hopping -1), the lattice analogue of -(nabla - iA)^2; the
-   graph is bipartite, so +A has the same states up to a sublattice sign.
+   The hopping is -1 (``sign``), the lattice analogue of -(nabla - iA)^2; the
+   graph is bipartite, so hopping +1 has the same states up to a sublattice
+   sign. The Peierls factor is e^{i int_b^a A}, the opposite orientation to
+   Part X's e^{i int_a^b A}: Phi = 1 here is Part X's phi = -1/6, and Phi = -1
+   here embeds exactly into Part X's 6 x 1 supercell at phi = +1/6
+   (:func:`partx_embedding`, residual 1e-15).
 2. **The lowest band is a Landau level** (:func:`lowest_band`). It is
    isolated, fills [-2 sqrt 3, -sqrt 6] (the endpoints from the
    characteristic polynomials at the symmetric twists), and has Chern number
-   1. That is two routes: FHS on this 1-cell bundle, and
+   1 in this orientation. In Part X's orientation it is -1 by two routes:
+   FHS on the 1-cell bundle at Phi = -1, and
    :func:`pyCICY.cusp_hofstadter.gap_cherns` on the 6 x 1 supercell at
-   phi = 1/6, which knows nothing of the 1-cell convention.
+   phi = 1/6 (the gap above the lowest band), which knows nothing of the
+   1-cell convention. Reversing the field conjugates the bundle and flips
+   the sign; it maps the twist k to -k, which fixes (1/2, 1/2), so the
+   C-site statement below does not depend on the orientation.
 3. **Its zeros are theta_1's** (:func:`site_zeros`). A Chern-1 band has no
    global nonvanishing section, so each site amplitude psi_s(k) must vanish
    somewhere on the twist torus. It vanishes exactly once, at
@@ -71,7 +79,8 @@ from sympy import I as _I, Matrix as _Matrix, exp as _exp, \
 from . import cusp_hofstadter as C
 
 __all__ = [
-    "magnetic_bloch", "magnetic_bloch_exact", "lowest_band", "band_ends_exact",
+    "magnetic_bloch", "magnetic_bloch_exact", "partx_embedding", "lowest_band",
+    "band_ends_exact",
     "predicted_twist", "site_zeros", "continuum_twist", "continuum_state",
     "overlaps", "controls", "status_lll",
 ]
@@ -137,19 +146,41 @@ def _fhs(Phi=1, band=0, nk=30):
     return F / (2 * pi)
 
 
+def partx_embedding(n=4, seed=1):
+    """Largest residual |H_X Psi - E Psi| when the lowest state of the 1-cell
+    model at Phi = -1 (hopping +1) is unfolded onto Part X's 6 x 1 supercell
+    at phi = 1/6 and supercell momentum (6 k1, k2), over n random twists.
+    Phi = +1 is the control: it does not embed."""
+    rng = np.random.default_rng(seed)
+    res = {}
+    for Phi in (-1, 1):
+        worst = 0.0
+        for _ in range(n):
+            k1, k2 = rng.uniform(0, 2 * pi, 2)
+            w, V = np.linalg.eigh(magnetic_bloch(k1, k2, Phi, +1))
+            big = np.array([np.exp(1j * m * k1)
+                            * np.exp(2j * pi * Phi * m * _S[a][1]) * V[a, 0]
+                            for m in range(6) for a in range(_N)])
+            Hx = C.magnetic_bloch(Fr(1, 6), 6 * k1, k2)
+            worst = max(worst, float(np.linalg.norm(Hx @ big - w[0] * big)))
+        res[Phi] = worst
+    return res
+
+
 def lowest_band(nk=30):
-    """Range of the lowest band, the gap above it, and its Chern number by
-    two routes (1-cell FHS here; the 6 x 1 supercell of Part X)."""
+    """Range of the lowest band, the gap above it, and its Chern number: in
+    this orientation, and in Part X's by two routes (1-cell FHS at Phi = -1;
+    the 6 x 1 supercell of Part X, gap above its lowest band)."""
     ks = 2 * pi * np.arange(nk) / nk
     E = np.array([np.linalg.eigvalsh(magnetic_bloch(a, b))
                   for a in ks for b in ks])
     sup = C.gap_cherns(Fr(1, 6), nk=18, nkgap=18)
-    # Part X uses hopping +1, whose top band is this (-1) model's lowest band
-    top = [g for g in sup if g["n_below"] == 30]
+    low = [g for g in sup if g["n_below"] == 6]
     return {"range": (float(E[:, 0].min()), float(E[:, 0].max())),
             "next_band_min": float(E[:, 1].min()),
             "chern_1cell": _fhs(nk=nk),
-            "chern_supercell_top_of_plus_A": top[0]["chern"] if top else None}
+            "chern_1cell_partX": _fhs(Phi=-1, nk=nk),
+            "chern_supercell_partX": low[0]["chern"] if low else None}
 
 
 def band_ends_exact():
@@ -307,10 +338,14 @@ def status_lll():
        abs(lb["range"][0] + 2 * sqrt(3)) < 1e-9
        and abs(lb["range"][1] + sqrt(6)) < 1e-9
        and abs(lb["next_band_min"] + sqrt(3)) < 1e-9)
-    ok("Chern 1 by two routes (1-cell FHS, 6 x 1 supercell)",
+    ok("Chern 1 here; -1 in Part X's orientation, 1-cell and supercell",
        abs(lb["chern_1cell"] - 1) < 1e-6
-       and lb["chern_supercell_top_of_plus_A"] is not None
-       and abs(lb["chern_supercell_top_of_plus_A"] - 1) < 1e-6)
+       and abs(lb["chern_1cell_partX"] + 1) < 1e-6
+       and lb["chern_supercell_partX"] is not None
+       and abs(lb["chern_supercell_partX"] + 1) < 1e-6)
+    em = partx_embedding()
+    ok("Phi = -1 states unfold onto Part X's supercell; Phi = +1 do not",
+       em[-1] < 1e-10 and em[1] > 1e-2)
     be = band_ends_exact()
     ok("band ends: top at the C-zero twist, bottom at the V-zero twist",
        str(be["C"]["charpoly"]) == "E**4*(E**2 - 6)"

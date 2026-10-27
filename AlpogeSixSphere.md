@@ -126,6 +126,12 @@ stating on their own:
    `φ = 1/6, 1/3` both diagonal blocks are commutative, while the substrate
    has gaps of Chern `±1`. So the Chern number is carried by the
    `[2]_q`-weighted coupling.
+15. **The ledger for Parts IX–XIV is generated, not written.**
+   `sixsphere_ledger` classifies all 57 checks those Parts print and
+   asserts that the table covers them one to one. Theorem XI rests on
+   exactly two quoted inputs: the classical `θ₁`/`η` laws, and the fact
+   that `S`, `T` generate `SL(2, Z)`. None of these checks is linked to
+   Lean yet.
 
 What is *not* here is the theorem. That `X` is diffeomorphic to `S⁶` is
 declined, and nothing in this package bears on whether the proof is correct
@@ -1503,6 +1509,88 @@ means not computed here, with the reason.
 | no quantised Chern gap on the Hat patch | measured, one patch of 2948 sites |
 | `X` diffeomorphic to `S⁶` | declined; formalised externally in plby/HopfProblem, not re-run here |
 
+### Parts IX–XIV, check by check
+
+The block below is generated from the `status_*` functions themselves by
+`pyCICY/sixsphere_ledger.py` (`python3 -m pyCICY.sixsphere_ledger --write`).
+Each printed check gets a kind from a closed vocabulary. *Derived* means
+exact arithmetic; *numerical* means floating point at a stated tolerance;
+*counted* means a finite enumeration that does not cover the claim's range;
+*second route* means code that shares nothing with the first; *quoted*,
+*premise*, *control* and *Lean* mean what they say. The script asserts that
+the table and the printed checks match one to one, that every quoted row
+names its source and every second-route row its route, and that controls
+are labelled as controls. `tests/test_sixsphere_ledger.py` fails if this
+block is stale.
+
+<!-- sixsphere_ledger: generated, do not edit by hand -->
+
+| Part | check | kind | rests on |
+| --- | --- | --- | --- |
+| IX | `invariant tensors: gamma, delta^, Q0 unique` | derived |  |
+| IX | `delta^ = Q0(gamma, .)` | derived |  |
+| IX | `commutant <I, gamma (x) delta^>` | derived |  |
+| IX | `automorphisms of (Q0, gamma) = Jacobi group, r forced` | derived |  |
+| IX | `<T1, T2> = ker chi, index 12` | derived, quoted | quoted: S and T generate SL(2, Z) (Serre, A Course in Arithmetic, VII.1); **Theorem XI** |
+| IX | `control: Levi lifts have chi = (4, 9), cusp rank 1` | derived, control |  |
+| IX | `Zariski closure: Lie algebra dim 6 = stabiliser` | derived |  |
+| IX | `G(R) keeps the 6 mu shape and preserves D` | derived |  |
+| IX | `orbit dim 5, stabiliser SO(2)` | derived |  |
+| IX | `four classes = d in {1,2,3,6}, Pf 6; d \| p, least \|p\| = d` | counted |  |
+| X | `6 sites (C, 3E, 2V), 12 bonds per domain` | derived, second route | second route: quantum-lattice extras/ql_cusp_substrate.py (pyqula, retyped geometry) |
+| X | `charpoly = E^6 - (12+s)E^4 - 3(s-6)E^2 - \|Delta_A2\|^2` | derived, second route | second route: quantum-lattice extras/ql_cusp_substrate.py (pyqula, retyped geometry) |
+| X | `det B = unit x Weyl denominator` | derived |  |
+| X | `E = 0 exactly on the three mirror lines` | derived, counted |  |
+| X | `B B^T row sums 18 at k = 0` | derived |  |
+| X | `spectrum fills [-3 sqrt 2, 3 sqrt 2]` | numerical |  |
+| X | `every kite carries flux phi` | counted |  |
+| X | `TKNN integer in every gap at phi = 1/3` | numerical, second route | second route: quantum-lattice extras/ql_cusp_substrate.py (pyqula, retyped geometry) |
+| XI | `F(g x) = e(chi(g)/12) F(x) on the 7 generators` | numerical |  |
+| XI | `... and on 20 random words` | numerical |  |
+| XI | `alpha by Euclid = alpha from the eta^2 multiplier` | derived, numerical |  |
+| XI | `<T1, T2> fixes F; g fixes F iff chi(g) = 0; F^12 invariant` | derived | **Theorem XI** |
+| XI | `z^k reach all 12 multipliers` | derived |  |
+| XI | `80 candidates, survivors exactly theta_1 / eta with e(beta/12)` | numerical |  |
+| XI | `control: e(beta/6) theta_1 / eta not fixed by T1` | numerical, control |  |
+| XI | `proof: classical laws + beta shift = chi/12 exactly, 5 generators` | derived, quoted | quoted: theta_1 and eta transformation laws (Mumford, Tata Lectures on Theta I, I.5 and I.7); **Theorem XI** |
+| XI | `control: without the beta shift, L(S) and h(0,1,0) are not constant` | derived, control |  |
+| XI | `the quoted classical laws hold against the series` | numerical |  |
+| XI | `F = 0 on mu in Z + tau Z, nonzero at half periods` | quoted, numerical | quoted: zeros of theta_1 (Mumford, Tata I, I.5) |
+| XII | `normal form d E03 + (6/d) E12, Pf 6, P unimodular, 4 classes` | derived |  |
+| XII | `D P^-1 T_i P D^-1 = (W1, W2) for all four classes` | derived |  |
+| XII | `h(0,1,0) conjugates (W1, W2) onto the paper's (T1, T2)` | derived |  |
+| XII | `Q-conjugate to the paper by C_d, det +-1/d^2` | derived |  |
+| XII | `Phi_d: Aut(Q_d, gamma)(Z) = G(Z) (symbolic + box)` | derived, counted |  |
+| XII | `<W1, W2> = ker chi: index 12 for every class` | derived |  |
+| XII | `exact: gcd of reachable p = d, least \|p\| = d` | derived |  |
+| XII | `class laws have the Z_d shape; F_d multiplier = chi o Phi_d` | derived, numerical |  |
+| XII | `F_d = 0 on d(Z + tau Z); nonzero at 1, tau, 1+tau for d > 1` | numerical |  |
+| XII | `control: only characteristic (0, 0) survives; naive theta fails` | numerical, control |  |
+| XIII | `lowest band isolated in [-2 sqrt 3, -sqrt 6], next at -sqrt 3` | derived, numerical |  |
+| XIII | `Chern 1 here; -1 in Part X's orientation, 1-cell and supercell` | numerical, second route | second route: quantum-lattice extras/ql_cusp_substrate.py (pyqula, retyped geometry); Part X's supercell after an exact unfolding |
+| XIII | `Phi = -1 states unfold onto Part X's supercell; Phi = +1 do not` | numerical |  |
+| XIII | `band ends: top at the C-zero twist, bottom at the V-zero twist` | numerical |  |
+| XIII | `each site amplitude vanishes at k = (1/2 - v, 1/2 + u)` | numerical |  |
+| XIII | `and nowhere else on the twist torus` | counted |  |
+| XIII | `the C site at the odd twist (1/2, 1/2)` | numerical |  |
+| XIII | `continuum theta_1 LLL: the same twist law` | numerical |  |
+| XIII | `lattice-continuum overlap > 0.97` | numerical |  |
+| XIII | `controls: no field Chern 0; periodic twist zero on E, not C` | numerical, control |  |
+| XIV | `Delta Delta-bar = 12 - s^2 + 4u, u the long-root hexagon` | derived |  |
+| XIV | `u is the hexagon on the index-3 sublattice; s, u independent` | derived, numerical |  |
+| XIV | `H^2 = [[6 + S, [2]_q K], [., 3 + H_V]] on C u V (patch)` | numerical |  |
+| XIV | `H^2_CC = 6 + S on the magnetic supercell` | numerical |  |
+| XIV | `S = quantised B_3 hexagon at Phi = 6 phi mod 2 (moments n <= 10)` | numerical, second route | second route: pyCICY/quantum_curve.py, which builds HSX's operator from the toric polygon alone |
+| XIV | `phi = 1/2: C-V decouple, S pi-flux triangular, gapless on [-3, 3]` | numerical |  |
+| XIV | `integer Phi: [S, U] = 0 and V flux integer, yet gap Chern +-1` | numerical |  |
+| XIV | `naive Weyl charpoly: exact at zero field, fails in a field` | numerical, control |  |
+
+57 checks: 30 derived, 28 numerical, 5 counted, 5 second route, 3 quoted, 6 control.
+No check from Part IX on is linked to a Lean fact. Lead 5 would add them.
+Quoted inputs on Theorem XI's critical path: S and T generate SL(2, Z) (Serre, A Course in Arithmetic, VII.1); theta_1 and eta transformation laws (Mumford, Tata Lectures on Theta I, I.5 and I.7).
+
+<!-- /sixsphere_ledger -->
+
 ---
 
 ## Provenance
@@ -1547,6 +1635,7 @@ python3 tests/test_sixsphere_theta.py          # Part XI, about 3 s
 python3 tests/test_sixsphere_classes.py        # Part XII, about 3 s
 python3 tests/test_cusp_lll.py                 # Part XIII, about 7 s
 python3 tests/test_cusp_mirror.py              # Part XIV, about 5 s
+python3 tests/test_sixsphere_ledger.py         # the generated ledger, Parts IX-XIV, about 30 s
 python3 paper/make_sixsphere_hat_hofstadter.py   # Part X figure (needs ../spectre), about 15 min
 ```
 
@@ -1618,6 +1707,10 @@ LL.continuum_twist(0, 0)    # the continuum theta_1 LLL: the same twist
 from pyCICY import cusp_mirror as Mi
 Mi.status_mirror()          # Part XIV: H^2 on C u V, the quantised dP6 hexagon
 Mi.square_identity(1/5)     # the block residuals on a patch (pass a Fraction)
+
+from pyCICY import sixsphere_ledger as Lg
+Lg.status_ledger()          # every Part IX-XIV check classified; Theorem XI's quoted inputs
+Lg.counts()                 # rows per kind, per Part
 
 T.get("complex-six-sphere")().describe()
 ```

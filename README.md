@@ -3413,6 +3413,17 @@ What holds exactly is an identity on the C and V sites:
 
 `AlpogeSixSphere.md`, Part XIV.
 
+### A generated ledger for Parts IX–XIV
+
+`pyCICY/sixsphere_ledger.py` runs every `status_*` function from Part IX on and
+classifies each of its 57 printed checks: derived, numerical, counted, second
+route, quoted, premise, control or Lean. It asserts the table and the checks
+match one to one, and it writes the ledger block in `AlpogeSixSphere.md`. Two
+findings:
+- Theorem XI rests on exactly two quoted inputs, the classical `θ₁`/`η` laws
+  and the fact that `S`, `T` generate `SL(2, Z)`.
+- No check from Part IX on is yet linked to a Lean fact.
+
 ```bash
 python3 tests/test_sixsphere_gauge.py          # about a minute
 python3 tests/test_cusp_hofstadter.py          # about 10 s
@@ -3420,6 +3431,7 @@ python3 tests/test_sixsphere_theta.py          # about 3 s
 python3 tests/test_sixsphere_classes.py        # about 3 s
 python3 tests/test_cusp_lll.py                 # about 7 s
 python3 tests/test_cusp_mirror.py              # about 5 s
+python3 tests/test_sixsphere_ledger.py         # about 30 s
 SPECTRE_DIR=../spectre python3 paper/make_sixsphere_hat_hofstadter.py   # ss_hat_hofstadter.png
 ```
 

@@ -1173,6 +1173,36 @@ is the C site of the substrate, and the three half periods are the E sites.
 What this divisor is on the period domain, and whether it meets the
 degeneration, is open (below).
 
+### Why it matters
+
+The whole construction starts from Alpöge's two monodromy matrices: "Everything
+starts from `T₁`, `T₂`" (Part I). Theorem XI says what the group they generate
+*is*, in four ways.
+
+1. **It explains the 12.** Part IX proves index 12 by a finite check, which
+   shows that it holds but not why. Theorem XI traces it to three classical
+   sources: the `e(1/12)` of `η²` on `T` (the 12 of `Δ = η²⁴`), the odd
+   characteristic of `θ₁`, and the `β` coefficient `1/12`.
+2. **It makes the monodromy group easy to describe.** `g ∈ ⟨T₁, T₂⟩` exactly
+   when `F(g·x) = F(x)`, that is when `χ(g) ≡ 0 mod 12`. Membership is one
+   character value, not a word search.
+3. **It gives a canonical invariant.** `F¹²` is invariant under the whole
+   integral Jacobi group. It is the first explicit function on the period
+   domain attached to this fibration, and the natural starting point for the
+   open period and `h¹²` questions.
+4. **It links the algebra to geometry and physics.** The zero of `F` is the C
+   site of Part X's substrate, and `θ₁` is the lowest Landau level on a torus
+   with one flux quantum. Parts IX, X and XI become three readings of one
+   object: the monodromy character, the substrate in a field, and the theta
+   multiplier. That is what makes the next tests concrete: whether the
+   lattice's lowest Landau level has its zero at the C site, and whether each
+   near-miss class has its own theta function, vanishing at its `d`-torsion
+   sites.
+
+What it is not: new modular-forms theory. The `θ₁` and `η` laws are classical.
+The new content is the identification of this fibration's monodromy with the
+kernel of their multiplier.
+
 ---
 
 ## The ledger, filled in

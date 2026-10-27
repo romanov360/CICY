@@ -100,10 +100,12 @@ Everything below is exact.
    the structure, and the near misses bottom out at |p| = 3, 2, 6 because d
    divides p. In all four
    classes the central transvection first enters the holonomy at z^12
-   (observed by a word search; proved above for the paper's class).
+   (observed by a word search; proved above for the paper's class, and for
+   every class by the isogeny of Part XII, :mod:`pyCICY.sixsphere_classes`,
+   which also makes d | p exact for the whole infinite family).
 
-What is not claimed: anything analytic (the period functions, and so whether
-the near-miss classes carry complex manifolds, stay declined as in Part VII);
+What is not claimed here: anything analytic (Part XII takes up the period
+functions of the near-miss classes);
 that Gomes's philosophical claims are right or wrong -- only that his recipe
 can be run here, and what it returns. The presentation of SL(2, Z) is quoted.
 The reading of chi as the eta^2 multiplier times an odd theta characteristic

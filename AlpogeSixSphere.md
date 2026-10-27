@@ -105,6 +105,11 @@ stating on their own:
    group of `F`, and `F¹²` is invariant under the whole structure group. This
    gives index 12 a second route, analytic and independent of the word search.
    Among 80 nearby candidates it is the only one fixed by `T₁` and `T₂`.
+12. **The near misses are isogenies.** Each near-miss class is the paper's
+   monodromy on a sublattice of index `d²`. So index 12 and `d | p` hold
+   exactly for every class, and each class has a theta function, the pullback
+   of Part XI's. Its zeros are the origin orbit, refuting the `d`-torsion
+   conjecture.
 
 What is *not* here is the theorem. That `X` is diffeomorphic to `S⁶` is
 declined, and nothing in this package bears on whether the proof is correct
@@ -1196,12 +1201,61 @@ starts from `T₁`, `T₂`" (Part I). Theorem XI says what the group they genera
    object: the monodromy character, the substrate in a field, and the theta
    multiplier. That is what makes the next tests concrete: whether the
    lattice's lowest Landau level has its zero at the C site, and whether each
-   near-miss class has its own theta function, vanishing at its `d`-torsion
-   sites.
+   near-miss class has its own theta function (Part XII: yes, by isogeny,
+   though its zeros are the origin orbit, not the `d`-torsion sites).
 
 What it is not: new modular-forms theory. The `θ₁` and `η` laws are classical.
 The new content is the identification of this fibration's monodromy with the
 kernel of their multiplier.
+
+## Part XII: the near-miss classes are one group up to isogeny
+
+Code: `pyCICY/sixsphere_classes.py` (`tests/test_sixsphere_classes.py`, about
+3 s). Part VII found four `GL(4, Z)` classes of flag-class lattice data, and
+Part IX told them apart by the divisibility `d ∈ {1, 2, 3, 6}` of `Q(γ, ·)`,
+with `d | p` observed in a box. Part VII declined the analytic side of the
+three near misses. This part settles both.
+
+1. **Normal form.** For each class an explicit unimodular `P_d` brings the
+   invariant form to `d·E₀₃ + (6/d)·E₁₂` and fixes `γ`. The Pfaffian is 6 in
+   every class.
+2. **Isogeny.** With `D_d = diag(d, 1, 1, d)`, the matrices
+   `W_i = D_d (P_d⁻¹ T_i P_d) D_d⁻¹` are the *same two matrices for all four
+   classes*, and `h(0, 1, 0)` conjugates them onto the paper's `(T₁, T₂)`.
+   Each class is the paper's monodromy acting on the stable sublattice
+   `L_d = D_d Z⁴` of index `d²`: a fibrewise isogeny of degree `d²` of one
+   torus fibration. Over `Q` the four classes are one, conjugated by
+   `C_d = P_d D_d⁻¹ h(0,1,0)⁻¹` with `det C_d = ±1/d²`.
+3. **Index 12 in every class, proved.** `Φ_d(g) = D_d g D_d⁻¹` is an
+   isomorphism from the integral automorphisms of `(Q_d, γ)` onto the integral
+   Jacobi group `G(Z)` (one direction symbolic, since `6/d` is an integer; the
+   other, that the translation column lies in `dZ²`, checked in a box). So
+   each class's monodromy group is `ker(χ ∘ Φ_d)`, of index 12. Part IX's
+   "observed" row becomes proved. The word search (`central_index_route`,
+   about 80 s) still gives 12 independently.
+4. **`d | p`, exactly.** Freeness of a twist is periodic modulo `m·F`, so a
+   finite enumeration gives every reachable `p` by residue mod 12:
+   `{1, 5, 7, 11}` for `d = 1`, `{2, 4, 8, 10}` for `d = 2`, `{3, 9}` for
+   `d = 3`, `{0, 6}` for `d = 6`. The gcd is `d` and the least `|p|` is `d`,
+   for the whole infinite family, not just a box.
+5. **The near misses carry periods and a theta function.** Class `d` has
+   period matrix `Z_d = [[6μ/d², τ], [β, μ]]` (`μ = d·μ_paper`), derived from
+   its integer matrices alone. Its theta function is the pullback
+   `F_d(τ, μ, β) = F(τ, μ/d, β)`, with multiplier `χ ∘ Φ_d` on the whole
+   structure group (25 digits, on the generators and on `W₁`, `W₂`).
+6. **A conjecture refuted.** The next-steps notes predicted that `F_d`
+   vanishes at the `d`-torsion sites. It does not. `F_d` vanishes exactly on
+   `μ ∈ d(Z + τZ)`, the orbit of the origin, and is nonzero at `1`, `τ`,
+   `1 + τ` for `d > 1` (minimum modulus about 0.69). Control: of the `d²`
+   theta characteristics `(1/2 + i/d, 1/2 + j/d)`, only `(0, 0)` has the
+   right multiplier, and the naive `θ₁(τ, μ)` in class coordinates is not
+   fixed by the class monodromy.
+
+What it does not claim: that any near-miss class builds an `S⁶`. Only `d = 1`
+reaches `|p| = 1`, so the paper's data stays the only candidate. What changed
+is the reason: the near misses fail on `p` alone, not on any analytic
+obstruction, since analytically they are isogenous copies of the paper's
+fibration.
 
 ---
 
@@ -1249,7 +1303,7 @@ means not computed here, with the reason.
 | spectrum, Yukawa couplings, masses on `X` | `NoSuchTheory`: no holomorphic volume form |
 | `(3, 4, ∞)` the only triangle group in the flag class | proved (orders, `−I`, gcd; gcd machine-checked) and observed (the sign) |
 | the paper's data the only class reaching `\|p\| = 1` | four classes, distinct by a proved invariant; completeness observed to box ±11; conjugator machine-checked |
-| analytic viability of the three near-miss classes | declined |
+| analytic viability of the three near-miss classes | exact: isogenous to the paper's data (Part XII); period matrix `Z_d`, theta `F_d`, multiplier `χ∘Φ_d` measured |
 | Laves kite lattice = Hasse diagram of the cusp fan | exact, in `Q(√3)`, against `monotile.laves_patch` |
 | lattice data achiral | exact; conjugator machine-checked |
 | `V` not self-dual over `Z` | proved: intertwiner determinant `36s⁴` |
@@ -1277,8 +1331,9 @@ means not computed here, with the reason.
 | `⟨T₁, T₂⟩ = ker χ`, index 12, quotient `Z/12` generated by the centre | proved (finite: 16-case mod-2 identity, explicit words); presentation of `SL(2, Z)` quoted |
 | Zariski closure = real Jacobi group | exact (Lie algebra dimension 6) |
 | real Jacobi action on `(τ, μ, β)`, `D` invariant, stabiliser `SO(2)` | exact, symbolic |
-| near-miss classes = divisibility `d` of `γ`; `d \| p`, least `\|p\| = d` | exact on all 32 survivors; not proved for the infinite family |
-| central index 12 in all four classes | observed (word search); proved for the paper's class |
+| near-miss classes = divisibility `d` of `γ`; `d \| p`, least `\|p\| = d` | exact for the infinite family (Part XII: periodicity of freeness mod `m·F`) |
+| central index 12 in all four classes | proved (Part XII isogeny, `Φ_d` symbolic one way, box the other); word search agrees |
+| `F_d` zeros = `μ ∈ d(Z + τZ)`, not the `d`-torsion | numerical; conjecture refuted, `d²`-characteristic control |
 | `F(g·x) = e(χ(g)/12)F(x)` for `F = e(β/12)θ₁/η`, all of `G(Z)` | proved (exact, by generators, from quoted classical `θ₁`/`η` laws, themselves checked against the series); also measured at 25 digits on random words; `α` by Euclid = `α` from `η²` numerically |
 | `⟨T₁, T₂⟩` = stabiliser of `F`; `F¹²` invariant | follows from the row above and Part IX's theorem |
 | `θ₁/η` with `e(β/12)` unique among 80 candidates | numerical search; 76 controls fail |
@@ -1330,6 +1385,7 @@ python3 paper/make_chair44_nested_figures.py     # the two Chair44 figures, PDF 
 python3 tests/test_sixsphere_gauge.py          # Part IX, about a minute
 python3 tests/test_cusp_hofstadter.py          # Part X, about 10 s
 python3 tests/test_sixsphere_theta.py          # Part XI, about 3 s
+python3 tests/test_sixsphere_classes.py        # Part XII, about 3 s
 python3 paper/make_sixsphere_hat_hofstadter.py   # Part X figure (needs ../spectre), about 15 min
 ```
 
@@ -1388,6 +1444,11 @@ Th.multiplier_check()       # generator by generator
 Th.proof_by_generators()    # the exact proof: classical laws + beta shift
 Th.candidate_search()       # the 80-candidate control
 
+from pyCICY import sixsphere_classes as Cl
+Cl.status_classes()         # Part XII: isogeny, index 12 and d | p for every class
+Cl.reachable_p(2)           # exact reachable p residues mod 12
+Cl.zero_divisor_d(3)        # F_d zeros: origin orbit, not d-torsion
+
 T.get("complex-six-sphere")().describe()
 ```
 
@@ -1395,12 +1456,13 @@ T.get("complex-six-sphere")().describe()
 
 ## What remains open
 
-- **Beyond Part XI.** The holonomy–multiplier theorem (Theorem XI) is now proved (Part XI, "The
-  proof"). The open questions go further. Does each of the three other near-miss classes (`d = 1, 2, 3`) have
-  its own theta function, with the central index it observed? What is the
-  zero divisor of `F` on the period domain, and does it meet the boundary at
-  the cusp fibre? And does the odd spin structure that `θ₁` selects on the
-  fibre torus agree with the boundary condition of Part X's lowest Landau level?
+- **Beyond Part XII.** Theorem XI is proved, and Part XII carries it to the
+  three near-miss classes (`d = 2, 3, 6`) by isogeny: each has its own theta
+  function `F_d`, index 12, and zeros on the origin orbit rather than the
+  `d`-torsion. Still open: does the zero divisor of `F` meet the boundary of
+  the period domain at the cusp fibre? And does the odd spin structure that
+  `θ₁` selects agree with the boundary condition of Part X's lowest Landau
+  level, with its zero at the C site?
 - **`h¹²`.** The one Hodge number neither the paper nor this implementation
   determines. The paper expects 1, and says what a computation would need: the
   direct images of `Ω¹` and `Ω²`, with the torsion of the relative forms along

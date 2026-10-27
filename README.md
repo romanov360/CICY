@@ -3366,10 +3366,25 @@ to the index 12. It is proved exactly, generator by generator: the classical
 `M`. Of 80 nearby theta/eta candidates, only this one is fixed by `T₁` and `T₂`.
 `AlpogeSixSphere.md`, Part XI.
 
+### The near-miss classes are isogenies
+
+`pyCICY.sixsphere_classes` shows that each of the four classes is the paper's
+monodromy acting on the stable sublattice `diag(d, 1, 1, d)·Z⁴`, of index `d²`:
+after an explicit unimodular change of basis, the conjugated generators are the
+same two matrices in every class. So the index 12 is proved for all four classes
+(it was observed), and `d | p` with least `|p| = d` is exact for the infinite
+family, by periodicity of freeness modulo the fixed lattice. The near misses
+carry period data after all: class `d` has theta function `F(τ, μ/d, β)` with
+multiplier `χ∘Φ_d`. The conjecture that it vanishes at the `d`-torsion is
+refuted; its zeros are the origin orbit `d(Z + τZ)`, and a `d²`-characteristic
+control confirms no other choice works. Only `d = 1` reaches `|p| = 1`.
+`AlpogeSixSphere.md`, Part XII.
+
 ```bash
 python3 tests/test_sixsphere_gauge.py          # about a minute
 python3 tests/test_cusp_hofstadter.py          # about 10 s
 python3 tests/test_sixsphere_theta.py          # about 3 s
+python3 tests/test_sixsphere_classes.py        # about 3 s
 SPECTRE_DIR=../spectre python3 paper/make_sixsphere_hat_hofstadter.py   # ss_hat_hofstadter.png
 ```
 

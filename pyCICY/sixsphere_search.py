@@ -66,9 +66,10 @@ distinctness of the four classes; every membership and the conjugator to the
 paper's data. Observed: the emptiness of (3, 3), (4, 4), (6, 6) for unipotent
 cusps, and the completeness of the four classes -- :func:`stability` shows the
 final count unchanged as the box grows while earlier stages keep growing, but
-a finite box is not a proof. Declined: everything analytic. Whether the three
-near-miss classes support period functions, and so a complex manifold at
-all, is not a lattice question.
+a finite box is not a proof. Declined here: everything analytic. Part XII
+(:mod:`pyCICY.sixsphere_classes`) has since answered it: the three near-miss
+classes are isogenous to the paper's data, so they carry the isogenous
+period variation and a pulled-back theta function, and fail on p alone.
 """
 
 import itertools
